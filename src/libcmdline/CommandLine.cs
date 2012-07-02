@@ -434,8 +434,11 @@ namespace CommandLine
 
             while (!string.IsNullOrEmpty(ae.Next))
             {
-                if (IsInputValue(ae.Current))
-                    list.Add(ae.Current);
+                if (IsInputValue(ae.Next))
+                {
+                    list.Add(ae.Next);
+                    ae.MoveNext();
+                }
                 else
                     break;
             }
