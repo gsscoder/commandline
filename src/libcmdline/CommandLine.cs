@@ -432,10 +432,13 @@ namespace CommandLine
         {
             IList<string> list = new List<string>();
 
-            while (ae.MoveNext())
+            while (!string.IsNullOrEmpty(ae.Next))
             {
-                if (IsInputValue(ae.Current))
-                    list.Add(ae.Current);
+                if (IsInputValue(ae.Next))
+                {
+                    list.Add(ae.Next);
+                    ae.MoveNext();
+                }
                 else
                     break;
             }
