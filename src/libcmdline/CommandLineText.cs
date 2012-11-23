@@ -400,6 +400,29 @@ namespace CommandLine.Text
         {
             WriteMessage (message, Console.Error);
         }
+
+        /// <summary>
+        /// The default heading information.
+        /// The title is retrieved from <see cref="AssemblyTitleAttribute"/>,
+        /// or the assembly short name if its not defined.
+        /// The version is retrieved from <see cref="AssemblyInformationalVersionAttribute"/>,
+        /// or the assembly version if its not defined.
+        /// </summary>
+        public static HeadingInfo Default
+        {
+            get
+            {
+                var titleAttribute = ReflectionUtil.GetAttribute<AssemblyTitleAttribute>();
+                string title = titleAttribute == null
+                    ? ReflectionUtil.AssemblyFromWhichToPullInformation.GetName().Name
+                    : Path.GetFileNameWithoutExtension(titleAttribute.Title);
+                var versionAttribute = ReflectionUtil.GetAttribute<AssemblyInformationalVersionAttribute>();
+                string version = versionAttribute == null
+                    ? ReflectionUtil.AssemblyFromWhichToPullInformation.GetName().Version.ToString()
+                    : versionAttribute.InformationalVersion;
+                return new HeadingInfo(title, version);
+            }
+        }
     }
 
     /*
@@ -810,15 +833,11 @@ namespace CommandLine.Text
         /// </param>
         public static HelpText AutoBuild(object options, HandleParsingErrorsDelegate errDelegate)
         {
-            var title = ReflectionUtil.GetAttribute<AssemblyTitleAttribute>();
-            if (title == null) throw new InvalidOperationException("HelpText::AutoBuild() requires that you define AssemblyTitleAttribute.");
-            var version = ReflectionUtil.GetAttribute<AssemblyInformationalVersionAttribute>();
-            if (version == null) throw new InvalidOperationException("HelpText::AutoBuild() requires that you define AssemblyInformationalVersionAttribute.");
             var copyright = ReflectionUtil.GetAttribute<AssemblyCopyrightAttribute>();
             if (copyright == null) throw new InvalidOperationException("HelpText::AutoBuild() requires that you define AssemblyCopyrightAttribute.");
 
             var auto = new HelpText {
-                Heading = new HeadingInfo(Path.GetFileNameWithoutExtension(title.Title), version.InformationalVersion),
+                Heading = HeadingInfo.Default,
                 Copyright = copyright.Copyright,
                 AdditionalNewLineAfterOption = true,
                 AddDashesToOption = true };
