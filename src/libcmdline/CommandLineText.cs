@@ -174,7 +174,6 @@ namespace CommandLine.Text
         private static readonly string _defaultCopyrightWord = "Copyright";
         private static readonly string _symbolLower = "(c)";
         private static readonly string _symbolUpper = "(C)";
-        private StringBuilder _builder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandLine.Text.CopyrightInfo"/> class.
@@ -222,12 +221,9 @@ namespace CommandLine.Text
             Assumes.NotNullOrEmpty (author, "author");
             Assumes.NotZeroLength (years, "years");
 
-            const int extraLength = 10;
             _isSymbolUpper = isSymbolUpper;
             _author = author;
             _years = years;
-            _builder = new StringBuilder
-                    (CopyrightWord.Length + author.Length + (4 * years.Length) + extraLength);
         }
 
         /// <summary>
@@ -236,19 +232,20 @@ namespace CommandLine.Text
         /// <returns>The <see cref="System.String"/> that contains the copyright informations.</returns>
         public override string ToString ()
         {
-            _builder.Append (CopyrightWord);
-            _builder.Append (' ');
+            var builder = new StringBuilder();
+            builder.Append (CopyrightWord);
+            builder.Append (' ');
             if (_isSymbolUpper)
-                _builder.Append (_symbolUpper);
+                builder.Append (_symbolUpper);
             else
-                _builder.Append (_symbolLower);
+                builder.Append (_symbolLower);
 
-            _builder.Append (' ');
-            _builder.Append (FormatYears (_years));
-            _builder.Append (' ');
-            _builder.Append (_author);
+            builder.Append (' ');
+            builder.Append (FormatYears (_years));
+            builder.Append (' ');
+            builder.Append (_author);
 
-            return _builder.ToString ();
+            return builder.ToString ();
         }
 
         /// <summary>
