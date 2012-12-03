@@ -42,7 +42,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyInformationalVersion(ThisAssembly.InformationalVersion)]
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyCulture("")]
-[assembly: InternalsVisibleTo("CommandLine.Tests")]
 #if DEBUG
 [assembly: AssemblyConfiguration("Debug")]
 #else
