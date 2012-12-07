@@ -230,8 +230,13 @@ namespace SampleApp
             //f3.CreateBasicInstance();
             //f3.InvokeRenderParsingErrorsText();
             //f3.AutoBuildWithRenderParsingErrorsHelper();
-            var f4 = new OptionArrayAttributeParsingFixture();
-            f4.ParseTwoUIntConsecutiveArray();
+            //var f4 = new OptionArrayAttributeParsingFixture();
+            //f4.ParseTwoUIntConsecutiveArray();
+            CommandLineParserFixture f5 = new CommandLineParserFixture();
+            //f5.ParseNegativeIntegerValue();
+            //f5.ParseNegativeIntegerValue_InputStyle4();
+            //f5.ParseNegativeFloatingPointValue_InputStyle4();
+            f5.PassingLongValueToIntegerOptionMustFailGracefully();
             Console.Write("press any key");
             Console.ReadKey();
             Environment.Exit(1);

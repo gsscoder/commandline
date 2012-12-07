@@ -1,3 +1,34 @@
+2012-11-30	Giacomo Stelluti Scala	<gsscoder@gmail.com>
+
+  * Merged pull request #11 from github user jafin
+      (ref.: https://github.com/gsscoder/commandline/pull/11).
+  * All tests runned for verify changes -> all passed.
+  * Version incremented to 1.9.3.27.
+
+2012-11-30	Giacomo Stelluti Scala	<gsscoder@gmail.com>
+
+  * Fixed bug reported by github user jandler about numbers overflow
+    (id #BUG0005, ref.: https://github.com/gsscoder/commandline/issues/14).
+  * library/CommandLine.cs/OptionInfo (OptionInfo)
+      Method SetValueScalar(...) modified for #BUG0005.
+  * tests/CommandLineParserFixture.cs
+      Added new region #BUG0005 with 5 new tests.
+  * tests/CommandLine.cs
+      Removed old lines of commented code.
+  * Version incremented to 1.9.3.25.
+
+2012-11-26	Giacomo Stelluti Scala	<gsscoder@gmail.com>
+
+  * Fixed bug reported by github user sbambrick about negative numbers parsing
+      (id #BUG0004, ref.: https://github.com/gsscoder/commandline/issues/13).
+  * library/CommandLine.cs/ArgumentParser (ArgumentParser)
+      Methods Create(...) and IsInputValue(...) modified for #BUG0004.
+  * library/CommandLine.cs/StringUtil (StringUtil)
+      Added method 'bool IsNumeric(string)' used in modified ArgumentParser methods.
+  * tests/CommandLineParserFixture.cs
+      Added new region #BUG0004 with 8 new tests.
+  * Version incremented to 1.9.3.23.
+
 2012-11-09	Giacomo Stelluti Scala	<gsscoder@gmail.com>
 
   * Merged pull request #10 from hugodahl for displaying all missing but required values.

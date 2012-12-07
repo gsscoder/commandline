@@ -58,7 +58,7 @@ namespace CommandLine
             internal set
             {
                 if (value != null && value.Length > 1)
-                    throw new ArgumentException("shortName");
+                    throw new ArgumentException("ShortName length must be 1 character or null.");
 
                 _shortName = value;
             }
@@ -394,13 +394,14 @@ namespace CommandLine
 
         protected void DefineOptionThatViolatesFormat(OptionInfo option)
         {
-            //this.PostParsingState.BadOptionInfo = option;
-            //this.PostParsingState.ViolatesFormat = true;
             this.PostParsingState.Add(new ParsingError(option.ShortName, option.LongName, true));
         }
 
         public static ArgumentParser Create(string argument, bool ignoreUnknownArguments = false)
         {
+            if (StringUtil.IsNumeric(argument))
+                return null;
+
             if (argument.Equals("-", StringComparison.InvariantCulture))
                 return null;
 
@@ -415,6 +416,9 @@ namespace CommandLine
 
         public static bool IsInputValue(string argument)
         {
+            if (StringUtil.IsNumeric(argument))
+                return true;
+
             if (argument.Length > 0)
                 return argument.Equals("-", StringComparison.InvariantCulture) || argument[0] != '-';
 
@@ -601,7 +605,6 @@ namespace CommandLine
                     if (!valueSetting)
                         this.DefineOptionThatViolatesFormat(option);
 
-                    //return ArgumentParser.BooleanToParserState(valueSetting, true);
                     return ArgumentParser.BooleanToParserState(valueSetting);
                 }
             }
@@ -880,7 +883,6 @@ namespace CommandLine
                 {
                     lock (_setValueLock)
                     {
-                        //array.SetValue(Convert.ChangeType(values[i], elementType, CultureInfo.InvariantCulture), i);
                         array.SetValue(Convert.ChangeType(values[i], elementType, Thread.CurrentThread.CurrentCulture), i);
                         _property.SetValue(options, array, null);
                     }
@@ -909,7 +911,6 @@ namespace CommandLine
                 {
                     lock (_setValueLock)
                     {
-                        //_property.SetValue(options, Convert.ChangeType(value, _property.PropertyType, CultureInfo.InvariantCulture), null);
                         _property.SetValue(options, Convert.ChangeType(value, _property.PropertyType, Thread.CurrentThread.CurrentCulture), null);
                     }
                 }
@@ -926,6 +927,10 @@ namespace CommandLine
             {
                 return false;
             }
+            catch (OverflowException) // Convert.ChangeType
+            {
+                return false;
+            }
 
             return true;
         }
@@ -938,7 +943,6 @@ namespace CommandLine
             {
                 lock (_setValueLock)
                 {
-                    //_property.SetValue(options, nc.ConvertFromString(null, CultureInfo.InvariantCulture, value), null);
                     _property.SetValue(options, nc.ConvertFromString(null, Thread.CurrentThread.CurrentCulture, value), null);
                 }
             }
@@ -1095,7 +1099,6 @@ namespace CommandLine
 
             if (_settings.MutuallyExclusive)
             {
-                //_mutuallyExclusiveSetMap = new Dictionary<string, int>(capacity, StringComparer.OrdinalIgnoreCase);
                 _mutuallyExclusiveSetMap = new Dictionary<string, MutuallyExclusiveInfo>(capacity, StringComparer.OrdinalIgnoreCase);
             }
         }
@@ -1170,12 +1173,10 @@ namespace CommandLine
                     BuildMutuallyExclusiveMap(option);
             }
 
-            //foreach (int occurrence in _mutuallyExclusiveSetMap.Values)
             foreach (MutuallyExclusiveInfo info in _mutuallyExclusiveSetMap.Values)
             {
-                if (info.Occurrence > 1) //if (occurrence > 1)
+                if (info.Occurrence > 1)
                 {
-                    //BuildAndSetPostParsingStateIfNeeded(this.RawOptions, null, null, true);
                     BuildAndSetPostParsingStateIfNeeded(this.RawOptions, info.BadOption, null, true);
                     return false;
                 }
@@ -1190,7 +1191,6 @@ namespace CommandLine
 
             if (!_mutuallyExclusiveSetMap.ContainsKey(setName))
             {
-                //_mutuallyExclusiveSetMap.Add(setName, 0);
                 _mutuallyExclusiveSetMap.Add(setName, new MutuallyExclusiveInfo(option));
             }
 
@@ -1822,7 +1822,6 @@ namespace CommandLine
             return false;
         }
 
-        //private static void SetPostParsingStateIfNeeded(object options, PostParsingState state)
         private static void SetPostParsingStateIfNeeded(object options, IEnumerable<ParsingError> state)
         {
             var commandLineOptionsBase = options as CommandLineOptionsBase;
@@ -1948,6 +1947,7 @@ namespace CommandLine
             where TAttribute : Attribute
         {
             object[] a = AssemblyFromWhichToPullInformation.GetCustomAttributes(typeof(TAttribute), false);
+
             if (a == null || a.Length <= 0) return null;
             return (TAttribute)a[0];
         }
@@ -1968,6 +1968,12 @@ namespace CommandLine
         public static string Spaces(int count)
         {
             return new String(' ', count);
+        }
+
+        public static bool IsNumeric(string value)
+        {
+            decimal temporary;
+            return decimal.TryParse(value, out temporary);
         }
     }
     #endregion
