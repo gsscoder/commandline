@@ -1946,9 +1946,8 @@ namespace CommandLine
         public static TAttribute GetAttribute<TAttribute>()
             where TAttribute : Attribute
         {
-            Assembly assemblyFromWhichToPullInformation = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            object[] a = AssemblyFromWhichToPullInformation.GetCustomAttributes(typeof(TAttribute), false);
 
-            object[] a = assemblyFromWhichToPullInformation.GetCustomAttributes(typeof(TAttribute), false);
             if (a == null || a.Length <= 0) return null;
             return (TAttribute)a[0];
         }
@@ -1956,6 +1955,11 @@ namespace CommandLine
         public static bool IsNullableType(Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        internal static Assembly AssemblyFromWhichToPullInformation
+        {
+            get { return Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly(); }
         }
     }
 
