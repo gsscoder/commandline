@@ -1059,6 +1059,11 @@ namespace CommandLine
         {
             get { return (_shortName != null && _longName != null); }
         }
+
+        public bool HasValue(object options)
+        {
+            return _property.GetValue(options, null) != null;
+        }
     }
 
     internal sealed class OptionMap
@@ -1135,7 +1140,7 @@ namespace CommandLine
 
         public bool EnforceRules()
         {
-            return EnforceMutuallyExclusiveMap() && EnforceRequiredRule();
+            return EnforceMutuallyExclusiveMap() && EnforceRequiredRule() && EnforceRequiredValues();
         }
 
         public void SetDefaults()
@@ -1153,7 +1158,7 @@ namespace CommandLine
             {
                 if (option.Required && !option.IsDefined)
                 {
-                    BuildAndSetPostParsingStateIfNeeded(this.RawOptions, option, true, null);
+                    BuildAndSetPostParsingStateIfNeeded(this.RawOptions, option, true, null, null);
                     requiredRulesAllMet = false;
                 }
             }
@@ -1177,12 +1182,26 @@ namespace CommandLine
             {
                 if (info.Occurrence > 1)
                 {
-                    BuildAndSetPostParsingStateIfNeeded(this.RawOptions, info.BadOption, null, true);
+                    BuildAndSetPostParsingStateIfNeeded(this.RawOptions, info.BadOption, null, true, null);
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private bool EnforceRequiredValues()
+        {
+            bool requiredRulesAllMet = true;
+            foreach (OptionInfo option in _map.Values)
+            {
+                if (option.IsDefined && !option.HasValue(RawOptions))
+                {
+                    BuildAndSetPostParsingStateIfNeeded(RawOptions, option, null, null, true);
+                    requiredRulesAllMet = false;
+                }
+            }
+            return requiredRulesAllMet;
         }
 
         private void BuildMutuallyExclusiveMap(OptionInfo option)
@@ -1197,7 +1216,7 @@ namespace CommandLine
             _mutuallyExclusiveSetMap[setName].IncrementOccurrence();
         }
 
-        private static void BuildAndSetPostParsingStateIfNeeded(object options, OptionInfo option, bool? required, bool? mutualExclusiveness)
+        private static void BuildAndSetPostParsingStateIfNeeded(object options, OptionInfo option, bool? required, bool? mutualExclusiveness, bool? requiresValue)
         {
             var commandLineOptionsBase = options as CommandLineOptionsBase;
             if (commandLineOptionsBase == null) 
@@ -1212,6 +1231,7 @@ namespace CommandLine
 
             if (required != null) error.ViolatesRequired = required.Value;
             if (mutualExclusiveness != null) error.ViolatesMutualExclusiveness = mutualExclusiveness.Value;
+            if (requiresValue != null) error.ViolatesFormat = requiresValue.Value;
 
             (commandLineOptionsBase).InternalLastPostParsingState.Errors.Add(error);
         }
