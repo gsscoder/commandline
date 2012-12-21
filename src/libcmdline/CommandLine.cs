@@ -202,7 +202,8 @@ namespace CommandLine
         /// </summary>
         /// <param name="shortName">The short name of the option or null if not used.</param>
         /// <param name="longName">The long name of the option or null if not used.</param>
-        public OptionAttribute(string shortName, string longName)
+        /// <param name="mutuallyExclusiveSet">The option's mutually exclusive set</param>
+        public OptionAttribute(string shortName = null, string longName = null, string mutuallyExclusiveSet = null)
         {
             if (!string.IsNullOrEmpty(shortName))
                 _uniqueName = shortName;
@@ -214,6 +215,8 @@ namespace CommandLine
 
             base.ShortName = shortName;
             base.LongName = longName;
+            if (mutuallyExclusiveSet != null)
+                MutuallyExclusiveSet = mutuallyExclusiveSet;
         }
 
         #if UNIT_TESTS
