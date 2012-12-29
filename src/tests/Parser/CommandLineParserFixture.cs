@@ -208,6 +208,63 @@ namespace CommandLine.Tests
         }
 
         [Test]
+        public void ParseOptionsWithSubOptionAsFirstArgument()
+        {
+            var options = new SimpleOptionsWithSubOption();
+            Result = base.Parser.ParseArguments(new string[] { "suboption", "--int", "3" }, options);
+
+            ResultShouldBeTrue();
+
+            options.SubOptions.IntegerValue.Should().Equal(3);
+        }
+
+        [Test]
+        public void ParseOptionsWithOwnOptionsBeforeSuboption()
+        {
+            var options = new SimpleOptionsWithSubOption();
+            Result = base.Parser.ParseArguments(new string[]{ "--string", "val", "suboption", "--int", "3" }, options);
+
+            ResultShouldBeTrue();
+
+            options.StringValue.Should().Equal("val");
+            options.SubOptions.IntegerValue.Should().Equal(3);
+        }
+
+        [Test]
+        public void ParseOptionsWithMultipleSuboptions()
+        {
+            var options = new SimpleOptionWithMultipleSubOptions();
+            Result = base.Parser.ParseArguments(new string[]{ "first", "--int", "2", "second", "--int", "3" }, options);
+
+            ResultShouldBeTrue();
+
+            options.Sub1.IntegerValue.Should().Equal(2);
+            options.Sub2.IntegerValue.Should().Equal(3);
+        }
+
+        [Test]
+        [ExpectedException(typeof(CommandLineParserException))]
+        public void ParseOptionsWithSuboptionThatHasNoDefaultConstructorMustFail()
+        {
+            var options = new SimpleOptionWithInvalidSuboption();
+            Result = base.Parser.ParseArguments(new string[] { "opt", "-i", "10" }, options);
+
+            ResultShouldBeFalse();
+        }
+
+        [Test]
+        public void ParseOptionsWithInitializedSuboptionThatHasNoDefaultConstructor()
+        {
+            var options = new SimpleOptionWithInvalidSuboption(5);
+            Result = base.Parser.ParseArguments(new string[] { "opt", "-i", "10" }, options);
+
+            ResultShouldBeTrue();
+
+            options.Opt.SomethingElse.Should().Equal(10);
+            options.Opt.Value.Should().Equal(5);
+        }
+
+        [Test]
         [ExpectedException(typeof(CommandLineParserException))]
         public void ParseOptionsWithBadDefaults()
         {

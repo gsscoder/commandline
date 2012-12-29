@@ -370,6 +370,28 @@ namespace CommandLine
             return pairZero.Left;
         }
     }
+
+    /// <summary>
+    /// Models a category of options that are separate from the main options.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class SubOptionAttribute : Attribute
+    {
+        /// <summary>
+        /// Name of suboption as identified by the command line arguments.
+        /// <example>MyProgram.exe suboptionName --arg1 --arg2</example>
+        /// </summary>
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// Create a new SubOption identified by the given name.
+        /// </summary>
+        /// <param name="name">Name of subcommand.</param>
+        public SubOptionAttribute(string name)
+        {
+            Name = name;
+        }
+    }
     #endregion
 
     #region Core
@@ -853,6 +875,22 @@ namespace CommandLine
                         map[pair.Right.UniqueName] = new OptionInfo(pair.Right, pair.Left);
                 }
 
+                map.SubOptions = new Dictionary<string, PropertyInfo>();
+                var subOptions = ReflectionUtil.RetrievePropertyList<SubOptionAttribute>(target);
+
+                foreach (var subOption in subOptions)
+                {
+                    if (subOption.Left.PropertyType.GetConstructor(Type.EmptyTypes) == null &&
+                        subOption.Left.GetValue(target, null) == null)
+                    {
+                        throw new CommandLineParserException(String.Format(
+                            "Type {0} must have parameterless constructor or " +
+                            "already be initialized to be used as a suboption.",
+                            subOption.Left.PropertyType));
+                    }
+                    map.SubOptions.Add(subOption.Right.Name, subOption.Left);
+                }
+
                 map.RawOptions = target;
 
                 return map;
@@ -1130,6 +1168,8 @@ namespace CommandLine
                     _names[value.LongName] = value.ShortName;
             }
         }
+
+        public Dictionary<string, PropertyInfo> SubOptions { get; set; }
 
         internal object RawOptions { private get; set; }
 
@@ -1781,6 +1821,38 @@ namespace CommandLine
 
                         if ((result & ParserState.MoveOnNextElement) == ParserState.MoveOnNextElement)
                             arguments.MoveNext();
+                    }
+                    else if (optionMap.SubOptions.ContainsKey(argument))
+                    {
+                        
+                        var prop = optionMap.SubOptions[argument];
+                        var subOptions = prop.GetValue(options, null) ?? Activator.CreateInstance(prop.PropertyType);
+
+                        var subOptionMap = OptionInfo.CreateMap(subOptions, _settings);
+                        subOptionMap.SetDefaults();
+
+                        while (arguments.MoveNext())
+                        {
+                            argument = arguments.Current;
+                            var subparser = ArgumentParser.Create(argument, _settings.IgnoreUnknownArguments);
+                            if (subparser == null) // Done parsing
+                            {
+                                arguments.MovePrevious();
+                                break;
+                            }
+
+                            var result = subparser.Parse(arguments, subOptionMap, subOptions);
+                            if ((result & ParserState.Failure) == ParserState.Failure)
+                            {
+                                SetPostParsingStateIfNeeded(subOptions, subparser.PostParsingState);
+                                hadError = true;
+                                continue;
+                            }
+
+                            if ((result & ParserState.MoveOnNextElement) == ParserState.MoveOnNextElement)
+                                arguments.MoveNext();
+                        }
+                        prop.SetValue(options, subOptions, null);
                     }
                     else if (target.IsValueListDefined)
                     {
