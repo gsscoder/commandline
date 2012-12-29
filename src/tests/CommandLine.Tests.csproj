@@ -41,6 +41,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Mocks\SimpleOptionsWithSubOptions.cs" />
+    <Compile Include="Mocks\SimpleOptionsWithSuboptionWithMultipleAliases.cs" />
     <Compile Include="Mocks\SimpleOptionWithInvalidSuboption.cs" />
     <Compile Include="Mocks\SimpleOptionWithMultipleSubOptions.cs" />
     <Compile Include="Mocks\SimpleSubOptions.cs" />

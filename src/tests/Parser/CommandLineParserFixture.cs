@@ -265,6 +265,20 @@ namespace CommandLine.Tests
         }
 
         [Test]
+        public void ParseOptionsWithMultipleAliases()
+        {
+            var options = new SimpleOptionsWithSuboptionWithMultipleAliases();
+
+            Result = base.Parser.ParseArguments(new string[] {"co", "-i", "10"}, options);
+            ResultShouldBeTrue();
+            options.SubOpt.IntegerValue.Should().Equal(10);
+
+            Result = base.Parser.ParseArguments(new string[] {"co", "-i", "3"}, options);
+            ResultShouldBeTrue();
+            options.SubOpt.IntegerValue.Should().Equal(3);
+        }
+
+        [Test]
         [ExpectedException(typeof(CommandLineParserException))]
         public void ParseOptionsWithBadDefaults()
         {

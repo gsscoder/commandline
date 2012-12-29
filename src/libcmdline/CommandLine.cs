@@ -374,7 +374,7 @@ namespace CommandLine
     /// <summary>
     /// Models a category of options that are separate from the main options.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public sealed class SubOptionAttribute : Attribute
     {
         /// <summary>
@@ -1941,9 +1941,11 @@ namespace CommandLine
                         var setMethod = property.GetSetMethod();
                         if (setMethod != null && !setMethod.IsStatic)
                         {
-                            var attribute = Attribute.GetCustomAttribute(property, typeof(TAttribute), false);
-                            if (attribute != null)
+                            var attributes = Attribute.GetCustomAttributes(property, typeof(TAttribute), false);
+                            foreach (var attribute in attributes)
+                            {
                                 list.Add(new Pair<PropertyInfo, TAttribute>(property, (TAttribute)attribute));
+                            }
                         }
                     }
                 }
