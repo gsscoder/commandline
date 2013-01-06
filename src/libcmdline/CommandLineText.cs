@@ -423,26 +423,50 @@ namespace CommandLine.Text
             _line5 = line5;
         }
 
+		// use protected virtual in case a derived class wants to override or call this
+		// Let's preserve blank lines if user intended by skipping a line
+		protected virtual int GetLastLineWithText( string[] strArray)
+		{
+			int index = Array.FindLastIndex( strArray, ( str ) => { return !string.IsNullOrEmpty( str ); } );
+
+			// remember FindLastIndex returns zero-based index
+			return index + 1;
+		}
+
+		public virtual string Value
+		{
+			get
+			{
+				var value = new StringBuilder( string.Empty );
+				var strArray = new string[] { _line1, _line2, _line3, _line4, _line5 };
+				for (int i = 0; i < GetLastLineWithText( strArray ); i++)
+				{
+					value.AppendLine( strArray[i] );
+				}
+				return value.ToString();
+			}
+		}
+
         internal void AddToHelpText(HelpText helpText, bool before)
         {
-            if (before)
-            {
-                if (!string.IsNullOrEmpty(_line1)) helpText.AddPreOptionsLine(_line1);
-                if (!string.IsNullOrEmpty(_line2)) helpText.AddPreOptionsLine(_line2);
-                if (!string.IsNullOrEmpty(_line3)) helpText.AddPreOptionsLine(_line3);
-                if (!string.IsNullOrEmpty(_line4)) helpText.AddPreOptionsLine(_line4);
-                if (!string.IsNullOrEmpty(_line5)) helpText.AddPreOptionsLine(_line5);
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(_line1)) helpText.AddPostOptionsLine(_line1);
-                if (!string.IsNullOrEmpty(_line2)) helpText.AddPostOptionsLine(_line2);
-                if (!string.IsNullOrEmpty(_line3)) helpText.AddPostOptionsLine(_line3);
-                if (!string.IsNullOrEmpty(_line4)) helpText.AddPostOptionsLine(_line4);
-                if (!string.IsNullOrEmpty(_line5)) helpText.AddPostOptionsLine(_line5);
-            }
+			// before flag only distinguishes which action is called, 
+			// so refactor common code and call with appropriate action
+			if (before)
+				AddToHelpText( helpText.AddPreOptionsLine );
+			else
+				AddToHelpText( helpText.AddPostOptionsLine );
         }
-    }
+
+		internal void AddToHelpText( Action<string> action )
+		{
+			var strArray = new string[] { _line1, _line2, _line3, _line4, _line5 };
+			Array.ForEach( strArray, ( line ) =>
+			{
+				if (!string.IsNullOrEmpty( line ))
+					action( line );
+			} );
+		}
+	}
 
     /// <summary>
     /// Models a multiline assembly license text.
