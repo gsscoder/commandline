@@ -56,8 +56,8 @@ namespace CommandLine
             {
                 return target;
             }
-            object value = pair.Left.GetValue(target, null);
-            return value ?? Activator.CreateInstance(pair.Left.PropertyType);
+            found = true;
+            return pair.Left.GetValue(target, null) ?? Activator.CreateInstance(pair.Left.PropertyType);;
         }
 
         private bool DoParseArgumentsUsingVerbs(string[] args, object options)
