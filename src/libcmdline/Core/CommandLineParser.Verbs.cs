@@ -52,8 +52,12 @@ namespace CommandLine
                 return target;
             }
             var pair = ReflectionUtil.RetrieveOptionProperty<VerbOptionAttribute>(target, verb);
-            found = pair != null;
-            return found ? pair.Left.GetValue(target, null) : target;
+            if (pair == null)
+            {
+                return target;
+            }
+            found = true;
+            return pair.Left.GetValue(target, null) ?? Activator.CreateInstance(pair.Left.PropertyType);;
         }
 
         /// <summary>
