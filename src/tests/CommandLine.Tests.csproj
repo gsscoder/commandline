@@ -185,6 +185,7 @@
     <Compile Include="Mocks\SimpleOptionsForStrict.cs" />
     <Compile Include="Mocks\OptionsWithVerbsHelp.cs" />
     <Compile Include="Mocks\OptionsWithVerbs.cs" />
+    <Compile Include="Mocks\VerbWithNullOptions.cs" />
     <Compile Include="Parser\StrictFixture.cs" />
     <Compile Include="Parser\VerbsFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

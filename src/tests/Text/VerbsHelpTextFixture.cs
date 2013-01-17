@@ -75,6 +75,14 @@ namespace CommandLine.Tests.Text
             lines[7].Trim().Should().Equal("-q, --quiet       Suppress summary message.");
         }
 
+        [Test]
+        public void ShouldHandleNullOptionsProperty()
+        {
+            var options = new VerbWithNullOptions();
+            CommandLineParser.Default.ParseArgumentsStrict(
+                new[] { "help", "foo" }, options);
+        }
+
         private void DoCoreTestForIndex(string[] args)
         {
             var options = new OptionsWithVerbsHelp();
