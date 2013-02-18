@@ -515,6 +515,21 @@ namespace CommandLine.Tests
             result.Should().BeFalse();
         }
         #endregion
+
+        #region #BUG0015
+
+        [Fact]
+        public void Parser_should_report_missing_value()
+        {
+            var options = new ComplexOptions();
+            var parser = new Parser();
+            var result = parser.ParseArguments(new string[] { "-i", "-o" }, options);
+
+            result.Should().BeFalse();
+            options.LastParserState.Errors.Count.Should().BeGreaterThan(0);
+        }
+
+        #endregion
     }
 }
 
