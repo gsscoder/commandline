@@ -53,6 +53,7 @@ namespace CommandLine.Parsing
                 {
                     if (argumentEnumerator.IsLast && optionGroup.IsLast)
                     {
+                        DefineOptionThatViolatesFormat(option);
                         return PresentParserState.Failure;
                     }
 
