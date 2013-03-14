@@ -53,6 +53,7 @@ namespace CommandLine.Parsing
             {
                 if (parts.Length == 1 && (argumentEnumerator.IsLast || !ArgumentParser.IsInputValue(argumentEnumerator.Next)))
                 {
+                    DefineOptionThatViolatesFormat(option);
                     return PresentParserState.Failure;
                 }
 
