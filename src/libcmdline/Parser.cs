@@ -480,7 +480,7 @@ namespace CommandLine
                 if (string.Compare(args[0], helpInfo.Right.LongName, GetStringComparison(_settings)) == 0)
                 {
                     // User explicitly requested help
-                    var verb = args.FirstOrDefault();
+                    var verb = args.ElementAtOrDefault(1);
                     if (verb != null)
                     {
                         var verbOption = optionMap[verb];
