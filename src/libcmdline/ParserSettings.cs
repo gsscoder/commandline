@@ -43,6 +43,8 @@ namespace CommandLine
         private bool _ignoreUnknownArguments;
         private TextWriter _helpWriter;
         private CultureInfo _parsingCulture;
+        private bool _enableDashDash;
+        private bool _doNotInterpretAfterFirstNonOption;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ParserSettings"/> class.
@@ -206,6 +208,39 @@ namespace CommandLine
             set
             {
                 PopsicleSetter.Set(Consumed, ref _ignoreUnknownArguments, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "--" argument should be interpreted. If enabled,
+        /// the -- argument indicates that any following arguments should not be interpreted as options.
+        /// </summary>
+        public bool EnableDashDash
+        {
+            get
+            {
+                return _enableDashDash;
+            }
+
+            set
+            {
+                PopsicleSetter.Set(Consumed, ref _enableDashDash, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether arguments following the first non-option argument should be interpreted as options.
+        /// </summary>
+        public bool DoNotInterpretAfterFirstNonOption
+        {
+            get
+            {
+                return _doNotInterpretAfterFirstNonOption;
+            }
+
+            set
+            {
+                PopsicleSetter.Set(Consumed, ref _doNotInterpretAfterFirstNonOption, value);
             }
         }
 

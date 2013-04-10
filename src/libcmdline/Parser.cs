@@ -350,11 +350,12 @@ namespace CommandLine
 
         private bool DoParseArgumentsCore(string[] args, object options)
         {
+            var hadNonOption = false;
             var hadError = false;
             var optionMap = OptionMap.Create(options, _settings);
             optionMap.SetDefaults();
             var valueMapper = new ValueMapper(options, _settings.ParsingCulture);
-
+            
             var arguments = new StringArrayEnumerator(args);
             while (arguments.MoveNext())
             {
@@ -364,7 +365,13 @@ namespace CommandLine
                     continue;
                 }
 
-                var parser = ArgumentParser.Create(argument, _settings.IgnoreUnknownArguments);
+                if (_settings.EnableDashDash && !hadNonOption && argument == "--")
+                {
+                    hadNonOption = true;
+                    continue;
+                }
+
+                var parser = hadNonOption ? null : ArgumentParser.Create(argument, _settings.IgnoreUnknownArguments);
                 if (parser != null)
                 {
                     var result = parser.Parse(arguments, optionMap, options);
@@ -386,6 +393,9 @@ namespace CommandLine
                     {
                         hadError = true;
                     }
+
+                    if (_settings.DoNotInterpretAfterFirstNonOption)
+                        hadNonOption = true;
                 }
             }
 
