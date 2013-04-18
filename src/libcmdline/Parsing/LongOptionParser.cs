@@ -24,103 +24,111 @@
 
 namespace CommandLine.Parsing
 {
-    internal sealed class LongOptionParser : ArgumentParser
-    {
-        private readonly bool _ignoreUnkwnownArguments;
+  internal sealed class LongOptionParser : ArgumentParser
+  {
+    private readonly bool _ignoreUnknownArguments;
 
-        public LongOptionParser(bool ignoreUnkwnownArguments)
+    public LongOptionParser(bool ignoreUnknownArguments)
+    {
+      _ignoreUnknownArguments = ignoreUnknownArguments;
+    }
+
+    public override PresentParserState Parse(IArgumentEnumerator argumentEnumerator, OptionMap map, object options)
+    {
+      var parts = argumentEnumerator.Current.Substring(2).Split(new[] { '=' }, 2);
+      var option = map[parts[0]];
+
+      if (option == null)
+      {
+        if (_ignoreUnknownArguments)
         {
-            _ignoreUnkwnownArguments = ignoreUnkwnownArguments;
+          return PresentParserState.MoveOnNextElement;
+        }
+        else
+        {
+          this.PostParsingState.Add(new ParsingError(null, "--" + parts[0], false) { IsUnknown = true });
+          return PresentParserState.Failure;
+        }
+      }
+
+      option.IsDefined = true;
+
+      ArgumentParser.EnsureOptionArrayAttributeIsNotBoundToScalar(option);
+
+      bool valueSetting;
+
+      if (!option.IsBoolean)
+      {
+        if (parts.Length == 1 && (argumentEnumerator.IsLast || !ArgumentParser.IsInputValue(argumentEnumerator.Next)))
+        {
+          return PresentParserState.Failure;
         }
 
-        public override PresentParserState Parse(IArgumentEnumerator argumentEnumerator, OptionMap map, object options)
+        if (parts.Length == 2)
         {
-            var parts = argumentEnumerator.Current.Substring(2).Split(new[] { '=' }, 2);
-            var option = map[parts[0]];
-
-            if (option == null)
-            {
-                return _ignoreUnkwnownArguments ? PresentParserState.MoveOnNextElement : PresentParserState.Failure;
-            }
-
-            option.IsDefined = true;
-
-            ArgumentParser.EnsureOptionArrayAttributeIsNotBoundToScalar(option);
-
-            bool valueSetting;
-
-            if (!option.IsBoolean)
-            {
-                if (parts.Length == 1 && (argumentEnumerator.IsLast || !ArgumentParser.IsInputValue(argumentEnumerator.Next)))
-                {
-                    return PresentParserState.Failure;
-                }
-
-                if (parts.Length == 2)
-                {
-                    if (!option.IsArray)
-                    {
-                        valueSetting = option.SetValue(parts[1], options);
-                        if (!valueSetting)
-                        {
-                            DefineOptionThatViolatesFormat(option);
-                        }
-
-                        return ArgumentParser.BooleanToParserState(valueSetting);
-                    }
-
-                    ArgumentParser.EnsureOptionAttributeIsArrayCompatible(option);
-
-                    var items = ArgumentParser.GetNextInputValues(argumentEnumerator);
-                    items.Insert(0, parts[1]);
-
-                    valueSetting = option.SetValue(items, options);
-                    if (!valueSetting)
-                    {
-                        DefineOptionThatViolatesFormat(option);
-                    }
-
-                    return ArgumentParser.BooleanToParserState(valueSetting);
-                }
-                else
-                {
-                    if (!option.IsArray)
-                    {
-                        valueSetting = option.SetValue(argumentEnumerator.Next, options);
-                        if (!valueSetting)
-                        {
-                            DefineOptionThatViolatesFormat(option);
-                        }
-
-                        return ArgumentParser.BooleanToParserState(valueSetting, true);
-                    }
-
-                    ArgumentParser.EnsureOptionAttributeIsArrayCompatible(option);
-
-                    var items = ArgumentParser.GetNextInputValues(argumentEnumerator);
-
-                    valueSetting = option.SetValue(items, options);
-                    if (!valueSetting)
-                    {
-                        DefineOptionThatViolatesFormat(option);
-                    }
-
-                    return ArgumentParser.BooleanToParserState(valueSetting);
-                }
-            }
-
-            if (parts.Length == 2)
-            {
-                return PresentParserState.Failure;
-            }
-
-            valueSetting = option.SetValue(true, options);
+          if (!option.IsArray)
+          {
+            valueSetting = option.SetValue(parts[1], options);
             if (!valueSetting)
             {
-                DefineOptionThatViolatesFormat(option);
+              DefineOptionThatViolatesFormat(option);
             }
 
             return ArgumentParser.BooleanToParserState(valueSetting);
+          }
+
+          ArgumentParser.EnsureOptionAttributeIsArrayCompatible(option);
+
+          var items = ArgumentParser.GetNextInputValues(argumentEnumerator);
+          items.Insert(0, parts[1]);
+
+          valueSetting = option.SetValue(items, options);
+          if (!valueSetting)
+          {
+            DefineOptionThatViolatesFormat(option);
+          }
+
+          return ArgumentParser.BooleanToParserState(valueSetting);
         }
+        else
+        {
+          if (!option.IsArray)
+          {
+            valueSetting = option.SetValue(argumentEnumerator.Next, options);
+            if (!valueSetting)
+            {
+              DefineOptionThatViolatesFormat(option);
+            }
+
+            return ArgumentParser.BooleanToParserState(valueSetting, true);
+          }
+
+          ArgumentParser.EnsureOptionAttributeIsArrayCompatible(option);
+
+          var items = ArgumentParser.GetNextInputValues(argumentEnumerator);
+
+          valueSetting = option.SetValue(items, options);
+          if (!valueSetting)
+          {
+            DefineOptionThatViolatesFormat(option);
+          }
+
+          return ArgumentParser.BooleanToParserState(valueSetting);
+        }
+      }
+
+      if (parts.Length == 2)
+      {
+        return PresentParserState.Failure;
+      }
+
+      valueSetting = option.SetValue(true, options);
+      if (!valueSetting)
+      {
+        DefineOptionThatViolatesFormat(option);
+      }
+
+      return ArgumentParser.BooleanToParserState(valueSetting);
     }
+  }
 }

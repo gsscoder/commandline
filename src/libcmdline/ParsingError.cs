@@ -49,6 +49,14 @@ namespace CommandLine
         public BadOptionInfo BadOption { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="CommandLine.ParsingError"/> indicates unknown option.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if violates required; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsUnknown { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this <see cref="CommandLine.ParsingError"/> violates required.
         /// </summary>
         /// <value>

@@ -73,5 +73,11 @@ namespace CommandLine.Text
         {
             return new EnglishSentenceBuilder();
         }
+
+        /// <summary>
+        /// Gets a string containing the sentence 'unknown'.
+        /// </summary>
+        /// <value>The sentence 'unknown'.</value>
+        public abstract string Unknown { get; }
     }
 }
