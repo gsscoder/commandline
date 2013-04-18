@@ -82,5 +82,14 @@ namespace CommandLine.Text
         {
             get { return "ERROR(S):"; }
         }
+
+        /// <summary>
+        /// Gets a string containing the sentence 'unknown' in english.
+        /// </summary>
+        /// <value>The sentence 'unknown' in english.</value>
+        public override string Unknown
+        {
+          get { return "unknown"; }
+        }
     }
 }

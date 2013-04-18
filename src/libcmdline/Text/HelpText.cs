@@ -459,42 +459,50 @@ namespace CommandLine.Text
             {
                 var line = new StringBuilder();
                 line.Append(indent.Spaces());
-                if (e.BadOption.ShortName != null)
-                {
-                    line.Append('-');
-                    line.Append(e.BadOption.ShortName);
-                    if (!string.IsNullOrEmpty(e.BadOption.LongName))
-                    {
-                        line.Append('/');
-                    }
-                }
 
-                if (!string.IsNullOrEmpty(e.BadOption.LongName))
+                if (e.IsUnknown)
                 {
-                    line.Append("--");
-                    line.Append(e.BadOption.LongName);
+                  line.Append(e.BadOption.LongName + " " + _sentenceBuilder.Unknown + " " + _sentenceBuilder.OptionWord);
                 }
-
-                line.Append(" ");
-                line.Append(e.ViolatesRequired ?
-                    _sentenceBuilder.RequiredOptionMissingText :
-                    _sentenceBuilder.OptionWord);
-                if (e.ViolatesFormat)
+                else
                 {
+                  if (e.BadOption.ShortName != null)
+                  {
+                      line.Append('-');
+                      line.Append(e.BadOption.ShortName);
+                      if (!string.IsNullOrEmpty(e.BadOption.LongName))
+                      {
+                          line.Append('/');
+                      }
+                  }
+
+                  if (!string.IsNullOrEmpty(e.BadOption.LongName))
+                  {
+                      line.Append("--");
+                      line.Append(e.BadOption.LongName);
+                  }
+
+                  line.Append(" ");
+                  line.Append(e.ViolatesRequired ?
+                      _sentenceBuilder.RequiredOptionMissingText :
+                      _sentenceBuilder.OptionWord);
+                  if (e.ViolatesFormat)
+                  {
                     line.Append(" ");
                     line.Append(_sentenceBuilder.ViolatesFormatText);
-                }
+                  }
 
-                if (e.ViolatesMutualExclusiveness)
-                {
+                  if (e.ViolatesMutualExclusiveness)
+                  {
                     if (e.ViolatesFormat || e.ViolatesRequired)
                     {
-                        line.Append(" ");
-                        line.Append(_sentenceBuilder.AndWord);
+                      line.Append(" ");
+                      line.Append(_sentenceBuilder.AndWord);
                     }
 
                     line.Append(" ");
                     line.Append(_sentenceBuilder.ViolatesMutualExclusivenessText);
+                  }
                 }
 
                 line.Append('.');

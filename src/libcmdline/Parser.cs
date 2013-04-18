@@ -168,8 +168,11 @@ namespace CommandLine
             object verbInstance = null;
 
             var result = DoParseArgumentsVerbs(args, options, ref verbInstance);
-            
-            onVerbCommand(args.FirstOrDefault() ?? string.Empty, result ? verbInstance : null);
+
+            if (result)
+            {
+              onVerbCommand(args.FirstOrDefault() ?? string.Empty, result ? verbInstance : null);
+            }
 
             return result;
         }

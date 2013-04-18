@@ -26,11 +26,11 @@ namespace CommandLine.Parsing
 {
     internal sealed class OptionGroupParser : ArgumentParser
     {
-        private readonly bool _ignoreUnkwnownArguments;
+        private readonly bool _ignoreUnknownArguments;
 
-        public OptionGroupParser(bool ignoreUnkwnownArguments)
+        public OptionGroupParser(bool ignoreUnknownArguments)
         {
-            _ignoreUnkwnownArguments = ignoreUnkwnownArguments;
+            _ignoreUnknownArguments = ignoreUnknownArguments;
         }
 
         public override PresentParserState Parse(IArgumentEnumerator argumentEnumerator, OptionMap map, object options)
@@ -42,7 +42,15 @@ namespace CommandLine.Parsing
                 var option = map[optionGroup.Current];
                 if (option == null)
                 {
-                    return _ignoreUnkwnownArguments ? PresentParserState.MoveOnNextElement : PresentParserState.Failure;
+                  if (_ignoreUnknownArguments)
+                  {
+                    return PresentParserState.MoveOnNextElement;
+                  }
+                  else
+                  {
+                    this.PostParsingState.Add(new ParsingError(null, argumentEnumerator.Current, false) { IsUnknown = true });
+                    return PresentParserState.Failure;
+                  }
                 }
 
                 option.IsDefined = true;
