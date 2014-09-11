@@ -40,7 +40,7 @@ namespace CommandLine.Extensions
         public static bool IsNumeric(this string value)
         {
             decimal temporary;
-            return decimal.TryParse(value, out temporary);
+            return decimal.TryParse(value, NumberStyles.Float | NumberStyles.Integer | NumberStyles.Number, CultureInfo.InvariantCulture, out temporary);
         }
 
         public static string FormatInvariant(this string value, params object[] arguments)
