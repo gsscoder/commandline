@@ -49,27 +49,30 @@ namespace CommandLine.Parsing
 
                 ArgumentParser.EnsureOptionArrayAttributeIsNotBoundToScalar(option);
 
-                if (!option.IsBoolean)
+                //previous place
+
+                if (!option.IsBoolean && argumentEnumerator.IsLast && optionGroup.IsLast)
                 {
-                    if (argumentEnumerator.IsLast && optionGroup.IsLast)
-                    {
-                        return PresentParserState.Failure;
-                    }
+                    return PresentParserState.Failure;
+                }
 
-                    bool valueSetting;
-                    if (!optionGroup.IsLast)
+                bool valueSetting;
+                if (!optionGroup.IsLast)
+                {
+                    if (!option.IsArray)
                     {
-                        if (!option.IsArray)
+                        valueSetting = option.SetValue(optionGroup.GetRemainingFromNext(), options);
+                        if (!valueSetting && !option.IsBoolean)
                         {
-                            valueSetting = option.SetValue(optionGroup.GetRemainingFromNext(), options);
-                            if (!valueSetting)
-                            {
-                                DefineOptionThatViolatesFormat(option);
-                            }
-
-                            return ArgumentParser.BooleanToParserState(valueSetting);
+                            DefineOptionThatViolatesFormat(option);
                         }
 
+                        if (valueSetting || !option.IsBoolean)
+                            return ArgumentParser.BooleanToParserState(valueSetting);
+                    }
+
+                    if (!option.IsBoolean)
+                    {
                         ArgumentParser.EnsureOptionAttributeIsArrayCompatible(option);
 
                         var items = ArgumentParser.GetNextInputValues(argumentEnumerator);
@@ -83,15 +86,18 @@ namespace CommandLine.Parsing
 
                         return ArgumentParser.BooleanToParserState(valueSetting, true);
                     }
+                }
 
-                    if (!argumentEnumerator.IsLast && !ArgumentParser.IsInputValue(argumentEnumerator.Next))
-                    {
-                        return PresentParserState.Failure;
-                    }
+                if (!option.IsBoolean && !argumentEnumerator.IsLast && !ArgumentParser.IsInputValue(argumentEnumerator.Next))
+                {
+                    return PresentParserState.Failure;
+                }
 
-                    if (!option.IsArray)
+                if (!option.IsArray)
+                {
+                    valueSetting = option.SetValue(argumentEnumerator.Next, options);
+                    if (!option.IsBoolean || valueSetting)
                     {
-                        valueSetting = option.SetValue(argumentEnumerator.Next, options);
                         if (!valueSetting)
                         {
                             DefineOptionThatViolatesFormat(option);
@@ -99,7 +105,10 @@ namespace CommandLine.Parsing
 
                         return ArgumentParser.BooleanToParserState(valueSetting, true);
                     }
+                }
 
+                if (!option.IsBoolean)
+                {
                     ArgumentParser.EnsureOptionAttributeIsArrayCompatible(option);
 
                     var moreItems = ArgumentParser.GetNextInputValues(argumentEnumerator);
@@ -112,6 +121,8 @@ namespace CommandLine.Parsing
 
                     return ArgumentParser.BooleanToParserState(valueSetting);
                 }
+
+                //old place close
 
                 if (!optionGroup.IsLast && map[optionGroup.Next] == null)
                 {
