@@ -532,6 +532,22 @@ namespace CommandLine.Tests.Unit.Parser
             options.LastParserState.Errors.Count.Should().BeGreaterThan(0);
         }
         #endregion
+
+        [Fact]
+        public void Parse_falsible_boolean()
+        {
+            var options = new BooleanSetOptions();
+            var parser = new CommandLine.Parser();
+            var result = parser.ParseArguments(new string[] { "-a true", "-c false", "-d65" }, options);
+
+            result.Should().BeTrue();
+            options.BooleanOne.Should().BeTrue();
+            options.BooleanTwo.Should().BeFalse();
+            options.BooleanThree.Should().BeFalse();
+            options.NonBooleanValue.Should().Be(65D);
+            Console.WriteLine(options);
+        }
+
     }
 }
 
