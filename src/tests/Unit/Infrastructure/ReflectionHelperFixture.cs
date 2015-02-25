@@ -132,9 +132,9 @@ namespace CommandLine.Tests.Unit.Infrastructure
 
             list.Should().NotBeNull();
             list.Should().HaveCount(n => n == 3);
-            list[0].StringValue.Should().Be("applied to X");
-            list[1].StringValue.Should().Be("applied to Y");
-            list[2].StringValue.Should().Be("applied to Z");
+            list[0].Right.StringValue.Should().Be("applied to X");
+            list[1].Right.StringValue.Should().Be("applied to Y");
+            list[2].Right.StringValue.Should().Be("applied to Z");
         }
 
         private static void PrintFieldList<TAttribute>(IList<Pair<PropertyInfo, TAttribute>> list)
