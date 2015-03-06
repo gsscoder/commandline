@@ -8,16 +8,21 @@ namespace CommandLine.Text
     {
         static char[] splitChars = new char[] { ' ', '-', '\t', ',' };
 
-        public static string Tab(this string str, int width)
+        public static string Tab(this string str, int width,bool ignorefirstline=false)
         {
             
             var lines = str.Split('\n');
             StringBuilder bld = new StringBuilder(str.Length + width * lines.Length );
-            foreach (var line in lines)
+            for (int index = 0; index < lines.Length; index++)
             {
-                for (int i = 0; i < width; i++)
+                var line = lines[index];
+
+                if (!(ignorefirstline && index == 0))
                 {
-                    bld.Append(" ");
+                    for (int i = 0; i < width; i++)
+                    {
+                        bld.Append(" ");
+                    }
                 }
                 bld.Append(line);
                 bld.Append("\n");

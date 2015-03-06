@@ -682,6 +682,11 @@ namespace CommandLine.Text
         private void AddOption(string requiredWord, int maxLength, Pair<MemberInfo, BaseOptionAttribute> option, int widthOfHelpText,
             bool fireEvent = true)
         {
+            if (option.Right.HelpText.ToUpper() == "HIDDEN")
+            {
+                return;
+            }
+
             _optionsHelp.Append("  ");
             var optionName = new StringBuilder(maxLength);
             if (option.Right.HasShortName)
@@ -724,6 +729,7 @@ namespace CommandLine.Text
                 : optionName.ToString());
 
             _optionsHelp.Append("    ");
+
             if (option.Right.HasDefaultValue)
             {
                 option.Right.HelpText = "(Default: {0}) ".FormatLocal(option.Right.DefaultValue) + option.Right.HelpText;
@@ -733,6 +739,8 @@ namespace CommandLine.Text
             {
                 option.Right.HelpText = "{0} ".FormatInvariant(requiredWord) + option.Right.HelpText;
             }
+
+            option.Right.HelpText = option.Right.HelpText.Wrap(Console.WindowWidth - maxLength - 10).Tab(maxLength + 6, true);
 
             if (fireEvent)
             {
@@ -764,7 +772,7 @@ namespace CommandLine.Text
                 {
                     var names = Enum.GetNames(propertyType).OrderBy(x => x);
                     var names1 = "\nValid Values are:\n" + string.Join(", ", names);
-                    _optionsHelp.Append(names1.Wrap(80 - maxLength - 10).Tab(maxLength + 6));
+                    _optionsHelp.Append(names1.Wrap(Console.WindowWidth - maxLength - 10).Tab(maxLength + 6));
                 }
             }
            
