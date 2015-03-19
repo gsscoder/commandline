@@ -1,4 +1,5 @@
 ﻿#region License
+
 // <copyright file="ReflectionCache.cs" company="Giacomo Stelluti Scala">
 //   Copyright 2015-2013 Giacomo Stelluti Scala
 // </copyright>
@@ -20,29 +21,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 #endregion
+
 #region Using Directives
+
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+
 #endregion
 
 namespace CommandLine.Infrastructure
 {
-    internal sealed class ReflectionCache
+    public sealed class ReflectionCache
     {
         private static readonly ReflectionCache Singleton;
-        private readonly IDictionary<Pair<Type, object>, WeakReference> _cache;
-
-        [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "Singleton, by design")]
-        static ReflectionCache()
-        {
-            Singleton = new ReflectionCache();
-        }
+        private readonly IDictionary<Pair<Type, object>, object> _cache;
 
         private ReflectionCache()
         {
-            _cache = new Dictionary<Pair<Type, object>, WeakReference>();
+            _cache = new ConcurrentDictionary<Pair<Type, object>, object>();
+        }
+
+        [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline",
+            Justification = "Singleton, by design")]
+        static ReflectionCache()
+        {
+            Singleton = new ReflectionCache();
         }
 
         public static ReflectionCache Instance
@@ -59,7 +66,7 @@ namespace CommandLine.Infrastructure
                     throw new ArgumentNullException("key");
                 }
 
-                return _cache.ContainsKey(key) ? _cache[key].Target : null;
+                return _cache.ContainsKey(key) ? _cache[key] : null;
             }
 
             set
@@ -69,7 +76,7 @@ namespace CommandLine.Infrastructure
                     throw new ArgumentNullException("key");
                 }
 
-                _cache[key] = new WeakReference(value);
+                _cache[key] = value;
             }
         }
     }
