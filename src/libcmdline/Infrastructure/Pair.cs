@@ -1,4 +1,5 @@
 ﻿#region License
+
 // <copyright file="Pair.cs" company="Giacomo Stelluti Scala">
 //   Copyright 2015-2013 Giacomo Stelluti Scala
 // </copyright>
@@ -20,11 +21,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 #endregion
 
 namespace CommandLine.Infrastructure
 {
-    internal sealed class Pair<TLeft, TRight>
+
+    public sealed class Pair<TLeft, TRight>
         where TLeft : class
         where TRight : class
     {
@@ -49,8 +52,8 @@ namespace CommandLine.Infrastructure
 
         public override int GetHashCode()
         {
-            int leftHash = _left == null ? 0 : _left.GetHashCode();
-            int rightHash = _right == null ? 0 : _right.GetHashCode();
+            var leftHash = _left == null ? 0 : _left.GetHashCode();
+            var rightHash = _right == null ? 0 : _right.GetHashCode();
 
             return leftHash ^ rightHash;
         }
@@ -64,7 +67,8 @@ namespace CommandLine.Infrastructure
                 return false;
             }
 
-            return object.Equals(_left, other._left) && object.Equals(_right, other._right);
+            bool val = Equals(_left, other._left) && Equals(_right, other._right);
+            return val;
         }
     }
 }
