@@ -19,7 +19,7 @@ namespace CommandLine.Core
             Action<Error> onError = e => errors.Add(e);
 
             var tokens = from arg in arguments
-                         from token in !arg.StartsWith("-", StringComparison.Ordinal)
+                         from token in !arg.StartsWith("-", StringComparison.Ordinal) && !arg.StartsWith("/", StringComparison.Ordinal)
                                ? new Token[] { Token.Value(arg) }
                                : arg.StartsWith("--", StringComparison.Ordinal)
                                      ? TokenizeLongName(arg, onError)
@@ -55,7 +55,7 @@ namespace CommandLine.Core
                 throw new ArgumentNullException("value");
             }
 
-            if (value.Length > 1 || value[0] == '-' || value[1] != '-')
+            if (value.Length > 1 || value[0] == '-' || value[0] == '/' || value[1] != '-')
             {
                 var text = value.Substring(1);
 
