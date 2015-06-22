@@ -642,38 +642,42 @@ namespace CommandLine.Text
             {
                 do
                 {
-                    var wordBuffer = 0;
-                    var words = optionHelpText.Split(new[] { ' ' });
-                    for (var i = 0; i < words.Length; i++)
+                    var paragraphs = optionHelpText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var paragraph in paragraphs)
                     {
-                        if (words[i].Length < (widthOfHelpText - wordBuffer))
+                        var wordBuffer = 0;
+                        var words = paragraph.Split(new[] { ' ' });
+                        for (var i = 0; i < words.Length; i++)
                         {
-                            this.optionsHelp.Append(words[i]);
-                            wordBuffer += words[i].Length;
-                            if ((widthOfHelpText - wordBuffer) > 1 && i != words.Length - 1)
+                            if (words[i].Length < (widthOfHelpText - wordBuffer))
                             {
-                                this.optionsHelp.Append(" ");
-                                wordBuffer++;
+                                this.optionsHelp.Append(words[i]);
+                                wordBuffer += words[i].Length;
+                                if ((widthOfHelpText - wordBuffer) > 1 && i != words.Length - 1)
+                                {
+                                    this.optionsHelp.Append(" ");
+                                    wordBuffer++;
+                                }
+                            }
+                            else if (words[i].Length >= widthOfHelpText && wordBuffer == 0)
+                            {
+                                this.optionsHelp.Append(words[i].Substring(0, widthOfHelpText));
+                                wordBuffer = widthOfHelpText;
+                                break;
+                            }
+                            else
+                            {
+                                break;
                             }
                         }
-                        else if (words[i].Length >= widthOfHelpText && wordBuffer == 0)
-                        {
-                            this.optionsHelp.Append(words[i].Substring(0, widthOfHelpText));
-                            wordBuffer = widthOfHelpText;
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
 
-                    optionHelpText = optionHelpText.Substring(
-                        Math.Min(wordBuffer, optionHelpText.Length)).Trim();
-                    if (optionHelpText.Length > 0)
-                    {
-                        this.optionsHelp.Append(Environment.NewLine);
-                        this.optionsHelp.Append(new string(' ', maxLength + 6));
+                        optionHelpText = optionHelpText.Substring(
+                            Math.Min(wordBuffer, optionHelpText.Length)).Trim();
+                        if (optionHelpText.Length > 0)
+                        {
+                            this.optionsHelp.Append(Environment.NewLine);
+                            this.optionsHelp.Append(new string(' ', maxLength + 6));
+                        }
                     }
                 }
                 while (optionHelpText.Length > widthOfHelpText);
