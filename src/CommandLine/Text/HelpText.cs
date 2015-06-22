@@ -640,50 +640,64 @@ namespace CommandLine.Text
 
             if (!string.IsNullOrEmpty(optionHelpText))
             {
-                do
+                var paragraphs = optionHelpText.Split(new[] { '\n', '\r' });
+                for (var p = 0; p < paragraphs.Length; p++)
                 {
-                    var paragraphs = optionHelpText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var paragraph in paragraphs)
+                    var paragraph = paragraphs[p].Trim();
+
+                    if (paragraph.Length > 0)
                     {
-                        var wordBuffer = 0;
-                        var words = paragraph.Split(new[] { ' ' });
-                        for (var i = 0; i < words.Length; i++)
+                        do
                         {
-                            if (words[i].Length < (widthOfHelpText - wordBuffer))
+                            var wordBuffer = 0;
+                            var words = paragraph.Split(new[] { ' ' });
+                            for (var i = 0; i < words.Length; i++)
                             {
-                                this.optionsHelp.Append(words[i]);
-                                wordBuffer += words[i].Length;
-                                if ((widthOfHelpText - wordBuffer) > 1 && i != words.Length - 1)
+                                if (words[i].Length < (widthOfHelpText - wordBuffer))
                                 {
-                                    this.optionsHelp.Append(" ");
-                                    wordBuffer++;
+                                    this.optionsHelp.Append(words[i]);
+                                    wordBuffer += words[i].Length;
+                                    if ((widthOfHelpText - wordBuffer) > 1 && i != words.Length - 1)
+                                    {
+                                        this.optionsHelp.Append(" ");
+                                        wordBuffer++;
+                                    }
+                                }
+                                else if (words[i].Length >= widthOfHelpText && wordBuffer == 0)
+                                {
+                                    this.optionsHelp.Append(words[i].Substring(0, widthOfHelpText));
+                                    wordBuffer = widthOfHelpText;
+                                    break;
+                                }
+                                else
+                                {
+                                    break;
                                 }
                             }
-                            else if (words[i].Length >= widthOfHelpText && wordBuffer == 0)
-                            {
-                                this.optionsHelp.Append(words[i].Substring(0, widthOfHelpText));
-                                wordBuffer = widthOfHelpText;
-                                break;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
 
-                        optionHelpText = optionHelpText.Substring(
-                            Math.Min(wordBuffer, optionHelpText.Length)).Trim();
-                        if (optionHelpText.Length > 0)
-                        {
-                            this.optionsHelp.Append(Environment.NewLine);
-                            this.optionsHelp.Append(new string(' ', maxLength + 6));
+                            paragraph = paragraph.Substring(
+                                Math.Min(wordBuffer, paragraph.Length)).Trim();
+                            if (paragraph.Length > 0)
+                            {
+                                this.optionsHelp.Append(Environment.NewLine);
+                                this.optionsHelp.Append(new string(' ', maxLength + 6));
+                            }
+                    
                         }
+                        while (paragraph.Length > widthOfHelpText);
+
+                        this.optionsHelp.Append(paragraph);
+
+                    }
+
+                    if (p < paragraphs.Length - 1)
+                    {
+                        this.optionsHelp.Append(Environment.NewLine);
+                        this.optionsHelp.Append(new string(' ', maxLength + 6));
                     }
                 }
-                while (optionHelpText.Length > widthOfHelpText);
             }
 
-            this.optionsHelp.Append(optionHelpText);
             this.optionsHelp.Append(Environment.NewLine);
             if (this.additionalNewLineAfterOption)
             {
