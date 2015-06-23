@@ -640,7 +640,7 @@ namespace CommandLine.Text
 
             if (!string.IsNullOrEmpty(optionHelpText))
             {
-                var paragraphs = optionHelpText.Split(new[] { '\n', '\r' });
+                var paragraphs = optionHelpText.Split(new[] { '\n' });
                 for (var p = 0; p < paragraphs.Length; p++)
                 {
                     var paragraph = paragraphs[p].Trim();
