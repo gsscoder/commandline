@@ -640,46 +640,65 @@ namespace CommandLine.Text
 
             if (!string.IsNullOrEmpty(optionHelpText))
             {
-                do
+                // This uses explicit \r\n and \n values instead of Environment.NewLine (that is either one or the other) to make HelpText creation easier for the developer 
+                var paragraphs = optionHelpText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                for (var p = 0; p < paragraphs.Length; p++)
                 {
-                    var wordBuffer = 0;
-                    var words = optionHelpText.Split(new[] { ' ' });
-                    for (var i = 0; i < words.Length; i++)
+                    var paragraph = paragraphs[p].Trim();
+
+                    if (paragraph.Length > 0)
                     {
-                        if (words[i].Length < (widthOfHelpText - wordBuffer))
+                        do
                         {
-                            this.optionsHelp.Append(words[i]);
-                            wordBuffer += words[i].Length;
-                            if ((widthOfHelpText - wordBuffer) > 1 && i != words.Length - 1)
+                            var wordBuffer = 0;
+                            var words = paragraph.Split(new[] { ' ' });
+                            for (var i = 0; i < words.Length; i++)
                             {
-                                this.optionsHelp.Append(" ");
-                                wordBuffer++;
+                                if (words[i].Length < (widthOfHelpText - wordBuffer))
+                                {
+                                    this.optionsHelp.Append(words[i]);
+                                    wordBuffer += words[i].Length;
+                                    if ((widthOfHelpText - wordBuffer) > 1 && i != words.Length - 1)
+                                    {
+                                        this.optionsHelp.Append(" ");
+                                        wordBuffer++;
+                                    }
+                                }
+                                else if (words[i].Length >= widthOfHelpText && wordBuffer == 0)
+                                {
+                                    this.optionsHelp.Append(words[i].Substring(0, widthOfHelpText));
+                                    wordBuffer = widthOfHelpText;
+                                    break;
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
+
+                            paragraph = paragraph.Substring(
+                                Math.Min(wordBuffer, paragraph.Length)).Trim();
+                            if (paragraph.Length > 0)
+                            {
+                                this.optionsHelp.Append(Environment.NewLine);
+                                this.optionsHelp.Append(new string(' ', maxLength + 6));
+                            }
+                    
                         }
-                        else if (words[i].Length >= widthOfHelpText && wordBuffer == 0)
-                        {
-                            this.optionsHelp.Append(words[i].Substring(0, widthOfHelpText));
-                            wordBuffer = widthOfHelpText;
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        while (paragraph.Length > widthOfHelpText);
+
+                        this.optionsHelp.Append(paragraph);
+
                     }
 
-                    optionHelpText = optionHelpText.Substring(
-                        Math.Min(wordBuffer, optionHelpText.Length)).Trim();
-                    if (optionHelpText.Length > 0)
+                    if (p < paragraphs.Length - 1)
                     {
                         this.optionsHelp.Append(Environment.NewLine);
                         this.optionsHelp.Append(new string(' ', maxLength + 6));
                     }
                 }
-                while (optionHelpText.Length > widthOfHelpText);
             }
 
-            this.optionsHelp.Append(optionHelpText);
             this.optionsHelp.Append(Environment.NewLine);
             if (this.additionalNewLineAfterOption)
             {

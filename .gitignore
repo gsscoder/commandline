@@ -16,6 +16,7 @@ build/*
 packages
 *.suo
 *.userprefs
+*.DotSettings.user
 *~
 \#*\#
 *.pidb
