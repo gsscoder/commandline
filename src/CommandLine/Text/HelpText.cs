@@ -640,7 +640,8 @@ namespace CommandLine.Text
 
             if (!string.IsNullOrEmpty(optionHelpText))
             {
-                var paragraphs = optionHelpText.Split(new[] { '\n' });
+                // This uses explicit \r\n and \n values instead of Environment.NewLine (that is either one or the other) to make HelpText creation easier for the developer 
+                var paragraphs = optionHelpText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
                 for (var p = 0; p < paragraphs.Length; p++)
                 {
                     var paragraph = paragraphs[p].Trim();

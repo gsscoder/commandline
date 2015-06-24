@@ -29,12 +29,24 @@ namespace CommandLine.Tests.Fakes
         public string FileName { get; set; }
     }
 
-    class FakeOptionsWithLongDescriptionAndLineFeeds
+    class FakeOptionsWithLongDescriptionAndNewLines
     {
         [Option('v', "verbose", HelpText = "This is the description of the verbosity to test out the wrapping capabilities of the Help Text.\n\nIn Addition to testing the insertion of line feeds.")]
         public bool Verbose { get; set; }
 
         [Option("input-file", HelpText = "This is a very long description of the Input File argument that gets passed in.  It should  be passed in as a string.\nThis tests a single line feed insertion.")]
+        public string FileName { get; set; }
+    }
+
+    class FakeOptionsWithLongDescriptionAndMixedNewLines
+    {
+        /// <summary>
+        /// HelpText string with a line feed character followed by a carriage return + line feed, should behave the same as 2 line feeds
+        /// </summary>
+        [Option('v', "verbose", HelpText = "This is the description of the verbosity to test out the wrapping capabilities of the Help Text.\n\r\nIn Addition to testing the insertion of line feeds.")]
+        public bool Verbose { get; set; }
+
+        [Option("input-file", HelpText = "This is a very long description of the Input File argument that gets passed in.  It should  be passed in as a string.\r\nThis tests a single line feed insertion.")]
         public string FileName { get; set; }
     }
 

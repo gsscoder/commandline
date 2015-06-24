@@ -144,22 +144,24 @@ namespace CommandLine.Tests.Unit.Text
         }
 
         [Fact]
-        public void When_help_text_is_longer_than_width_it_will_wrap_around_as_if_in_a_column_with_manual_line_feeds()
+        public void When_help_text_is_longer_than_width_it_will_wrap_around_as_if_in_a_column_with_new_lines()
         {
             // Fixture setup
             // Exercize system 
             var sut = new HelpText(new HeadingInfo("CommandLine.Tests.dll", "1.9.4.131"));
             sut.MaximumDisplayWidth = 40;
-            sut.AddOptions(new FakeOptionsWithLongDescriptionAndLineFeeds());
+            sut.AddOptions(new FakeOptionsWithLongDescriptionAndNewLines());
 
             // Verify outcome
-            var lines = sut.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            var text = sut.ToString();
+            var lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
             lines[2].Should().Be("  v, verbose    This is the description"); //"The first line should have the arguments and the start of the Help Text.");
-            //string formattingMessage = "Beyond the second line should be formatted as though it's in a column.";
             lines[3].Should().Be("                of the verbosity to ");
             lines[4].Should().Be("                test out the wrapping ");
             lines[5].Should().Be("                capabilities of the ");
+            // The following line ended as a result of the first line feed
             lines[6].Should().Be("                Help Text.");
+            // The following empty line is the result of the second line feed
             lines[7].Should().Be("                ");
             lines[8].Should().Be("                In Addition to testing ");
             lines[9].Should().Be("                the insertion of line ");
@@ -169,12 +171,48 @@ namespace CommandLine.Tests.Unit.Text
             lines[13].Should().Be("                Input File argument ");
             lines[14].Should().Be("                that gets passed in.  ");
             lines[15].Should().Be("                It should  be passed in");
+            // The following line ended as a result of the lone line feed
             lines[16].Should().Be("                as a string.");
             lines[17].Should().Be("                This tests a single ");
             lines[18].Should().Be("                line feed insertion.");
             // Teardown
         }
 
+        [Fact]
+        public void When_help_text_is_longer_than_width_it_will_wrap_around_as_if_in_a_column_with_mixed_new_line_styles()
+        {
+            // Fixture setup
+            // Exercize system 
+            var sut = new HelpText(new HeadingInfo("CommandLine.Tests.dll", "1.9.4.131"));
+            sut.MaximumDisplayWidth = 40;
+            sut.AddOptions(new FakeOptionsWithLongDescriptionAndMixedNewLines());
+
+            // Verify outcome
+            var text = sut.ToString();
+            var lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            lines[2].Should().Be("  v, verbose    This is the description"); //"The first line should have the arguments and the start of the Help Text.");
+            lines[3].Should().Be("                of the verbosity to ");
+            lines[4].Should().Be("                test out the wrapping ");
+            lines[5].Should().Be("                capabilities of the ");
+            // The following line ended as a result of the line feed without a carriage return
+            lines[6].Should().Be("                Help Text.");
+            // The following empty line is the result of the carriage return + line feed
+            lines[7].Should().Be("                ");
+            lines[8].Should().Be("                In Addition to testing ");
+            lines[9].Should().Be("                the insertion of line ");
+            lines[10].Should().Be("                feeds.");
+            lines[11].Should().Be("  input-file    This is a very long ");
+            lines[12].Should().Be("                description of the ");
+            lines[13].Should().Be("                Input File argument ");
+            lines[14].Should().Be("                that gets passed in.  ");
+            lines[15].Should().Be("                It should  be passed in");
+            // The following line ended as a result of the lone carriage return + line feed
+            lines[16].Should().Be("                as a string.");
+            lines[17].Should().Be("                This tests a single ");
+            lines[18].Should().Be("                line feed insertion.");
+            // Teardown
+        }
+        
         [Fact]
         public void Long_help_text_without_spaces()
         {
