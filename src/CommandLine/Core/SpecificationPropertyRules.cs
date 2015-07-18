@@ -25,69 +25,91 @@ namespace CommandLine.Core
         private static Func<IEnumerable<SpecificationProperty>, IEnumerable<Error>> EnforceMutuallyExclusiveSet()
         {
             return specProps =>
+            {
+                var options =
+                    from sp in specProps
+                    where sp.Specification.IsOption()
+                    where sp.Value.IsJust()
+                    let o = (OptionSpecification)sp.Specification
+                    where o.SetName.Length > 0
+                    select o;
+                var groups = from o in options
+                             group o by o.SetName into g
+                             select g;
+                if (groups.Count() > 1)
                 {
-                    var options = specProps
-                            .Where(sp => sp.Specification.IsOption())
-                            .Where(sp => ((OptionSpecification)sp.Specification).SetName.Length > 0
-                                   && sp.Value.IsJust());
-                    var groups = options.GroupBy(g => ((OptionSpecification)g.Specification).SetName);
-                    if (groups.Count() > 1)
-                    {
-                        return options.Select(s =>
-                            new MutuallyExclusiveSetError(
-                                ((OptionSpecification)s.Specification).FromOptionSpecification()));
-                    }
-                    return Enumerable.Empty<Error>();
-                };
+                    return
+                        from o in options
+                        select new MutuallyExclusiveSetError(o.FromOptionSpecification());
+                }
+                return Enumerable.Empty<Error>();
+            };
         }
 
         private static Func<IEnumerable<SpecificationProperty>, IEnumerable<Error>> EnforceRequired()
         {
             return specProps =>
             {
-                var setsWithTrue =
-                    specProps
-                        .Where(sp => sp.Specification.IsOption()
-                            && sp.Value.IsJust() && sp.Specification.Required)
-                        .Select(s => ((OptionSpecification)s.Specification).SetName).ToList();
-                
-                var requiredButEmpty =
-                    specProps
-                        .Where(sp => sp.Specification.IsOption())
-                        .Where(sp => sp.Value.IsNothing()
-                            && sp.Specification.Required
-                            && (
-                                ((OptionSpecification)sp.Specification).SetName.Length == 0 ||
-                                !setsWithTrue.Contains(((OptionSpecification)sp.Specification).SetName)
-                            ))                          
-                    .Concat(specProps
-                        .Where(sp => sp.Specification.IsValue()
-                            && sp.Value.IsNothing()
-                            && sp.Specification.Required)).ToList();
-                    if (requiredButEmpty.Any()) {
-                        return requiredButEmpty.Select(s =>new MissingRequiredOptionError(
-                            s.Specification.FromSpecification()));
-                    }
-                    return Enumerable.Empty<Error>();
-                };
+                var requiredWithValue = from sp in specProps
+                    where sp.Specification.IsOption()
+                    where sp.Specification.Required
+                    where sp.Value.IsJust()
+                    let o = (OptionSpecification)sp.Specification
+                    where o.SetName.Length > 0
+                    select sp.Specification;
+                var setWithRequiredValue = (
+                    from s in requiredWithValue
+                    let o = (OptionSpecification)s
+                    where o.SetName.Length > 0
+                    select o.SetName)
+                        .Distinct();
+                var requiredWithoutValue = from sp in specProps
+                    where sp.Specification.IsOption()
+                    where sp.Specification.Required
+                    where sp.Value.IsNothing()
+                    let o = (OptionSpecification)sp.Specification
+                    where o.SetName.Length > 0
+                    where setWithRequiredValue.ContainsIfNotEmpty(o.SetName)
+                    select sp.Specification;
+                var missing =
+                    requiredWithoutValue
+                        .Except(requiredWithValue)
+                        .Concat(
+                            from sp in specProps
+                            where sp.Specification.IsOption()
+                            where sp.Specification.Required
+                            where sp.Value.IsNothing()
+                            let o = (OptionSpecification)sp.Specification
+                            where o.SetName.Length == 0
+                            select sp.Specification)
+                        .Concat(
+                            from sp in specProps
+                            where sp.Specification.IsValue()
+                            where sp.Specification.Required
+                            where sp.Value.IsNothing()
+                            select sp.Specification);
+                return
+                    from sp in missing
+                    select new MissingRequiredOptionError(sp.FromSpecification());
+            };
         }
 
         private static Func<IEnumerable<SpecificationProperty>, IEnumerable<Error>> EnforceRange()
         {
             return specProps =>
                 {
-                    var options = specProps.Where(
-                        sp => sp.Specification.TargetType == TargetType.Sequence
-                        && sp.Value.IsJust()
-                        && (
+                    var options = specProps
+                        .Where(sp => sp.Specification.TargetType == TargetType.Sequence)
+                        .Where(sp => sp.Value.IsJust())
+                        .Where(sp =>
                             (sp.Specification.Min.IsJust() && ((Array)sp.Value.FromJust()).Length < sp.Specification.Min.FromJust())
                             || (sp.Specification.Max.IsJust() && ((Array)sp.Value.FromJust()).Length > sp.Specification.Max.FromJust())
-                        )
-                    );
+                        );
                     if (options.Any())
                     {
-                        return options.Select(s => new SequenceOutOfRangeError(
-                            s.Specification.FromSpecification()));
+                        return
+                            from s in options
+                            select new SequenceOutOfRangeError(s.Specification.FromSpecification());
                     }
                     return Enumerable.Empty<Error>();
                 };
@@ -98,9 +120,11 @@ namespace CommandLine.Core
             return specProps =>
                 {
                     var specs = from sp in specProps
-                                where sp.Specification.IsOption() && sp.Value.IsJust()
+                                where sp.Specification.IsOption()
+                                where sp.Value.IsJust()
                                 select (OptionSpecification)sp.Specification;
-                    var options = from t in tokens.Where(t => t.IsName())
+                    var options = from t in tokens
+                                  where t.IsName()
                                   join o in specs on t.Text equals o.UniqueName() into to
                                   from o in to.DefaultIfEmpty()
                                   where o != null
@@ -114,6 +138,15 @@ namespace CommandLine.Core
                                  select new RepeatedOptionError(new NameInfo(y.Value.ShortName, y.Value.LongName));
                     return errors;
                 };
+        }
+
+        private static bool ContainsIfNotEmpty<T>(this IEnumerable<T> sequence, T value)
+        {
+            if (sequence.Any())
+            {
+                return sequence.Contains(value);
+            }
+            return true;
         }
     }
 }
