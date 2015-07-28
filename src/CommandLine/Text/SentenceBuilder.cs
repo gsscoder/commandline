@@ -101,7 +101,7 @@ namespace CommandLine.Text
                                     var seqOutRange = ((SequenceOutOfRangeError)error);
                                     return seqOutRange.NameInfo == NameInfo.EmptyName
                                                ? "A sequence value not bound to option name is defined with few items than required."
-                                               : "A sequence option '" + seqOutRange.NameInfo.NameText + "' is defined with few items than required.";
+                                               : "A sequence option '" + seqOutRange.NameInfo.NameText + "' is defined with fewer or more items than required.";
                                 case ErrorType.BadVerbSelectedError:
                                     return "Verb '" + ((BadVerbSelectedError)error).Token + "' is not recognized.";
                                 case ErrorType.NoVerbSelectedError:
