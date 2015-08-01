@@ -23,10 +23,11 @@ namespace CommandLine.Tests.Unit.Core
                 Token.Value("aaa"), Token.Value("bb"),  Token.Value("cccc"), Token.Name("switch") };
             var specs = new[] { new OptionSpecification(string.Empty, "string-seq",
                 false, string.Empty, Maybe.Nothing<int>(), Maybe.Nothing<int>(), ',', null, string.Empty, string.Empty, new List<string>(), typeof(IEnumerable<string>), TargetType.Sequence)};
+            var tokenizer = new TokenizerGetOpt();
 
             // Exercize system
             var result =
-                Tokenizer.ExplodeOptionList(
+                tokenizer.ExplodeOptionList(
                     Result.Succeed(
                         Enumerable.Empty<Token>().Concat(new[] { Token.Name("i"), Token.Value("10"),
                             Token.Name("string-seq"), Token.Value("aaa,bb,cccc"), Token.Name("switch") }),
@@ -47,10 +48,11 @@ namespace CommandLine.Tests.Unit.Core
                 Token.Value("aaa"), Token.Value("bb"),  Token.Value("cccc"), Token.Name("switch") };
             var specs = new[] { new OptionSpecification(string.Empty, "string-seq",
                 false, string.Empty, Maybe.Nothing<int>(), Maybe.Nothing<int>(), ',', null, string.Empty, string.Empty, new List<string>(), typeof(IEnumerable<string>), TargetType.Sequence)};
+            var tokenizer = new TokenizerGetOpt();
 
             // Exercize system
             var result =
-                Tokenizer.ExplodeOptionList(
+                tokenizer.ExplodeOptionList(
                     Result.Succeed(
                         Enumerable.Empty<Token>().Concat(new[] { Token.Name("x"),
                             Token.Name("string-seq"), Token.Value("aaa,bb,cccc"), Token.Name("switch") }),
