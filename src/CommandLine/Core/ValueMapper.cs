@@ -1,22 +1,26 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandLine.Infrastructure;
+using CSharpx;
+using RailwaySharp.ErrorHandling;
 
 namespace CommandLine.Core
 {
     internal static class ValueMapper
     {
-        public static StatePair<IEnumerable<SpecificationProperty>> MapValues(
-            IEnumerable<SpecificationProperty> specProps,
-            IEnumerable<string> values,
-            Func<IEnumerable<string>, Type, bool, Maybe<object>> converter)
+        public static Result<
+            IEnumerable<SpecificationProperty>, Error>
+            MapValues(
+                IEnumerable<SpecificationProperty> specProps,
+                IEnumerable<string> values,
+                Func<IEnumerable<string>, Type, bool, Maybe<object>> converter)
         {
             var propAndErrors = MapValuesImpl(specProps, values, converter);
 
-            return StatePair.Create(
+            return Result.Succeed(
                 propAndErrors.Select(pe => pe.Item1),
                 propAndErrors.Select(pe => pe.Item2)
                     .OfType<Just<Error>>().Select(e => e.Value)

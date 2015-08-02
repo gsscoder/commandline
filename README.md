@@ -3,7 +3,7 @@
 [![Nuget](https://img.shields.io/nuget/v/commandlineparser.svg)](http://nuget.org/packages/commandlineparser)
 [![Nuget](https://img.shields.io/nuget/vpre/commandlineparser.svg)](http://nuget.org/packages/commandlineparser)
 
-Command Line Parser Library 2.0.85.0 alpha for CLR.
+Command Line Parser Library 2.0.219.0 beta for CLR.
 ===
 The Command Line Parser Library offers CLR applications a clean and concise API for manipulating command line arguments and related tasks, such as defining switches, options and verb commands. It allows you to display a help screen with a high degree of customization and a simple way to report syntax errors to the end user.
 
@@ -26,10 +26,12 @@ At glance:
   - Automatic or one line help screen generator: ``HelpText.AutoBuild(...)``.
     - Supports `--help`, `--version`, `version` and `help [verb]` by default.
   - Map to sequences (``IEnumerable<T>``) or scalar types, including enum and ``Nullable<T>``.
+  - You can also map to every type with a constructor that accepts a string (like ``System.Uri``).
   - __Plug-In friendly__ architecture as explained [here](https://github.com/gsscoder/commandline/wiki/Plug-in-Friendly-Architecture).
   - Define [verb commands](https://github.com/gsscoder/commandline/wiki/Latest-Version#verbs) as ``git commit -a``.
-  - Most of features applies with a [CoC](http://en.wikipedia.org/wiki/Convention_over_configuration) philosophy.
+  - Unparsing support: ``CommandLine.Parser.Default.FormatCommandLine<T>(T options)``.
   - F#-friendly with support for ``option<'a>``, see [demo](https://github.com/gsscoder/commandline/blob/master/demo/fsharp-demo.fsx).
+  - Most of features applies with a [CoC](http://en.wikipedia.org/wiki/Convention_over_configuration) philosophy.
   - C# demo: source [here](https://github.com/gsscoder/commandline/tree/master/demo/ReadText.Demo).
 
 To install:
@@ -46,7 +48,11 @@ To build:
 
 Public API:
 ---
-Latest changes are recorded from Version 1.9.4.91, please refer to [this document](https://github.com/gsscoder/commandline/blob/master/doc/PublicAPI.md).
+Latest changes are recorded from Version 1.9.4.91, please refer to [this document](https://github.com/gsscoder/commandline/blob/master/docs/PublicAPI.md).
+
+Used by:
+---
+- [FSharp.Formatting](https://github.com/tpetricek/FSharp.Formatting) by @tpetricek.
 
 Notes:
 ---
@@ -212,7 +218,25 @@ Latest Changes:
   - Issue #162 (`ValueAttribute` handled in help screen) Implemented.
   - PR #197 (by @Thilas) Implemented.
   - Issue #202 (reported by @StevenLiekens) Fixed.
-  - Internal refactorings.
+  - Managing deps with Paket.
+  - Issue #203 Implemented.
+  - Issue #204 (reported by @Kimi-Arthur) Fixed.
+  - PR #205 (by @forki) Merged.
+  - Refactoring with `RailwaySharp.ErrorHandling`.
+  - Test project refactoring.
+  - Issue #186 Implemented: Adding unparse support.
+  - PR #207 Merged.
+  - Using new Paket-friendly CSharpx and RailwaySharp.
+  - Added F# option support to `FormatCommandLine()`.
+  - `ParserResult<T>` internally refactored, minor breaking changes to `HelpText`.
+  - Added `FormatCommandLine()` overload with settings.
+  - Issue #208 Implemented (extended usage text support).
+  - Internal/external refactorings.
+  - Minor `HelpText` refactorings.
+  - Issue #210 (reported by @mac2000) Implemented.
+  - Test refactorings.
+  - Fixing XML comments.
+  - Changes in usage text handling.
 
 Contact:
 ---

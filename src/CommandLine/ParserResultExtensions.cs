@@ -1,4 +1,4 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
@@ -9,10 +9,10 @@ namespace CommandLine
     /// <summary>
     /// Provides convenience extension methods for <see cref="CommandLine.ParserResult{T}"/>.
     /// </summary>
-    public static class ParserResultExtensions
+    public static partial class ParserResultExtensions
     {
         /// <summary>
-        /// Executes <see cref="Action{T}"/> if <see cref="CommandLine.ParserResult{T}"/> contains
+        /// Executes <paramref name="action"/> if <see cref="CommandLine.ParserResult{T}"/> contains
         /// parsed values.
         /// </summary>
         /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
@@ -30,7 +30,7 @@ namespace CommandLine
         }
 
         /// <summary>
-        /// Executes <see cref="Action{T}"/> if parsed values are of <typeparamref name="T"/>.
+        /// Executes <paramref name="action"/> if parsed values are of <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
         /// <param name="result">An verb result instance.</param>
@@ -50,12 +50,12 @@ namespace CommandLine
         }
 
         /// <summary>
-        /// Executes <see cref="Action{T}"/> of <see cref="IEnumerable{T}"/> of <see cref="Error"/> if <see cref="CommandLine.ParserResult{T}"/> lacks
+        /// Executes <paramref name="action"/> if <see cref="CommandLine.ParserResult{T}"/> lacks
         /// parsed values and contains errors.
         /// </summary>
         /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
         /// <param name="result">An <see cref="CommandLine.ParserResult{T}"/> instance.</param>
-        /// <param name="action">The <see cref="Action{T}"/> of <see cref="IEnumerable{T}"/> of <see cref="Error"/> to execute.</param>
+        /// <param name="action">The <see cref="System.Action"/> delegate to execute.</param>
         /// <returns>The same <paramref name="result"/> instance.</returns>
         public static ParserResult<T> WithNotParsed<T>(this ParserResult<T> result, Action<IEnumerable<Error>> action)
         {

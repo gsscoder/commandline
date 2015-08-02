@@ -1,12 +1,13 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommandLine.Core;
-using CommandLine.Infrastructure;
 using CommandLine.Text;
+using CSharpx;
+using RailwaySharp.ErrorHandling;
 
 namespace CommandLine
 {
@@ -165,7 +166,7 @@ namespace CommandLine
             GC.SuppressFinalize(this);
         }
 
-        private static StatePair<IEnumerable<Token>> Tokenize(
+        private static Result<IEnumerable<Token>, Error> Tokenize(
                 IEnumerable<string> arguments,
                 IEnumerable<OptionSpecification> optionSpecs,
                 ParserSettings settings)

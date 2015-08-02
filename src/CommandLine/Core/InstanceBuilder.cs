@@ -1,11 +1,12 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using CommandLine.Infrastructure;
+using CSharpx;
+using RailwaySharp.ErrorHandling;
 
 namespace CommandLine.Core
 {
@@ -34,7 +35,7 @@ namespace CommandLine.Core
 
         public static ParserResult<T> Build<T>(
             Maybe<Func<T>> factory,
-            Func<IEnumerable<string>, IEnumerable<OptionSpecification>, StatePair<IEnumerable<Token>>> tokenizer,
+            Func<IEnumerable<string>, IEnumerable<OptionSpecification>, Result<IEnumerable<Token>, Error>> tokenizer,
             IEnumerable<string> arguments,
             StringComparer nameComparer,
             CultureInfo parsingCulture)
@@ -61,25 +62,25 @@ namespace CommandLine.Core
                 var preprocessorErrors = arguments.Preprocess(PreprocessorGuards.Lookup(nameComparer));
                 if (preprocessorErrors.Any())
                 {
-                    return new NotParsed<T>(makeDefault(), preprocessorErrors);
+                    return new NotParsed<T>(makeDefault().GetType().ToTypeInfo(), preprocessorErrors);
                 }
             }
 
             var tokenizerResult = tokenizer(arguments, optionSpecs);
 
-            var tokens = tokenizerResult.Value;
+            var tokens = tokenizerResult.SucceededWith();
 
             var partitions = TokenPartitioner.Partition(
                 tokens,
                 name => TypeLookup.FindTypeDescriptorAndSibling(name, optionSpecs, nameComparer));
 
-            var optionSpecProps = OptionMapper.MapValues(
+            var optionSpecPropsResult = OptionMapper.MapValues(
                 (from pt in specProps where pt.Specification.IsOption() select pt),
                 partitions.Options,
                 (vals, type, isScalar) => TypeConverter.ChangeType(vals, type, isScalar, parsingCulture),
                 nameComparer);
 
-            var valueSpecProps = ValueMapper.MapValues(
+            var valueSpecPropsResult = ValueMapper.MapValues(
                 (from pt in specProps where pt.Specification.IsValue() select pt),
                     partitions.Values,
                 (vals, type, isScalar) => TypeConverter.ChangeType(vals, type, isScalar, parsingCulture));
@@ -88,7 +89,8 @@ namespace CommandLine.Core
                                      select new MissingValueOptionError(
                                          optionSpecs.Single(o => token.Text.MatchName(o.ShortName, o.LongName, nameComparer)).FromOptionSpecification());
 
-            var specPropsWithValue = optionSpecProps.Value.Concat(valueSpecProps.Value);
+            var specPropsWithValue = optionSpecPropsResult.SucceededWith()
+                .Concat(valueSpecPropsResult.SucceededWith());
 
             T instance;
             if (typeInfo.IsMutable())
@@ -121,16 +123,13 @@ namespace CommandLine.Core
             var validationErrors = specPropsWithValue.Validate(
                 SpecificationPropertyRules.Lookup(tokens));
 
-            var allErrors = tokenizerResult.Errors.Concat(missingValueErrors)
-                .Concat(optionSpecProps.Errors)
-                .Concat(valueSpecProps.Errors)
-                .Concat(validationErrors);
-
-            if (allErrors.Any())
-            {
-                return new NotParsed<T>(instance, allErrors);
-            }
-            return new Parsed<T>(instance);
+            return tokenizerResult
+                .SuccessfulMessages()
+                    .Concat(missingValueErrors)
+                    .Concat(optionSpecPropsResult.SuccessfulMessages())
+                    .Concat(valueSpecPropsResult.SuccessfulMessages())
+                    .Concat(validationErrors)
+                .ToParserResult(instance);
         }
     }
 }

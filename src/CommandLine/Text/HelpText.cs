@@ -1,11 +1,13 @@
-// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 using CommandLine.Infrastructure;
 using CommandLine.Core;
+using CSharpx;
 
 namespace CommandLine.Text
 {
@@ -110,11 +112,7 @@ namespace CommandLine.Text
         /// </summary>
         public string Heading
         {
-            get
-            {
-                return heading;
-            }
-
+            get { return heading; }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
@@ -129,11 +127,7 @@ namespace CommandLine.Text
         /// </summary>
         public string Copyright
         {
-            get
-            {
-                return copyright;
-            }
-
+            get { return copyright; }
             set
             {
                 if (value == null) throw new ArgumentNullException("value");
@@ -148,30 +142,18 @@ namespace CommandLine.Text
         /// <value>The maximum width of the display.</value>
         public int MaximumDisplayWidth
         {
-            get
-            {
-                return maximumDisplayWidth.HasValue ? maximumDisplayWidth.Value : DefaultMaximumLength;
-            }
-            set
-            {
-                maximumDisplayWidth = value;
-            }
+            get { return maximumDisplayWidth.HasValue ? maximumDisplayWidth.Value : DefaultMaximumLength; }
+            set { maximumDisplayWidth = value; }
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether the format of options should contain dashes.
-        /// It modifies behavior of <see cref="AddOptions{T}(T)"/> method.
+        /// It modifies behavior of <see cref="AddOptions{T}(ParserResult{T})"/> method.
         /// </summary>
         public bool AddDashesToOption
         {
-            get
-            {
-                return addDashesToOption;
-            }
-            set
-            {
-                addDashesToOption = value;
-            }
+            get { return addDashesToOption; }
+            set { addDashesToOption = value; }
         }
 
         /// <summary>
@@ -179,14 +161,8 @@ namespace CommandLine.Text
         /// </summary>
         public bool AdditionalNewLineAfterOption
         {
-            get
-            {
-                return additionalNewLineAfterOption;
-            }
-            set
-            {
-                additionalNewLineAfterOption = value;
-            }
+            get { return additionalNewLineAfterOption; }
+            set { additionalNewLineAfterOption = value; }
         }
 
         /// <summary>
@@ -194,14 +170,8 @@ namespace CommandLine.Text
         /// </summary>
         public bool AddEnumValuesToHelpText
         {
-            get
-            {
-                return addEnumValuesToHelpText;
-            }
-            set
-            {
-                addEnumValuesToHelpText = value;
-            }
+            get { return addEnumValuesToHelpText; }
+            set { addEnumValuesToHelpText = value; }
         }
 
         /// <summary>
@@ -209,10 +179,7 @@ namespace CommandLine.Text
         /// </summary>
         public SentenceBuilder SentenceBuilder
         {
-            get
-            {
-                return sentenceBuilder;
-            }
+            get { return sentenceBuilder; }
         }
 
         /// <summary>
@@ -223,20 +190,21 @@ namespace CommandLine.Text
         /// </returns>
         /// <param name='parserResult'>The <see cref="CommandLine.ParserResult{T}"/> containing the instance that collected command line arguments parsed with <see cref="CommandLine.Parser"/> class.</param>
         /// <param name='onError'>A delegate used to customize the text block of reporting parsing errors text block.</param>
+        /// <param name='onExample'>A delegate used to customize <see cref="CommandLine.Text.Example"/> model used to render text block of usage examples.</param>
         /// <param name="verbsIndex">If true the output style is consistent with verb commands (no dashes), otherwise it outputs options.</param>
         /// <remarks>The parameter <paramref name="verbsIndex"/> is not ontly a metter of formatting, it controls whether to handle verbs or options.</remarks>
         public static HelpText AutoBuild<T>(
             ParserResult<T> parserResult,
             Func<HelpText, HelpText> onError,
+            Func<Example, Example> onExample, 
             bool verbsIndex = false)
         {
-            var auto = new HelpText
-                       {
-                           Heading = HeadingInfo.Default,
-                           Copyright = CopyrightInfo.Default,
-                           AdditionalNewLineAfterOption = true,
-                           AddDashesToOption = !verbsIndex
-                       };
+            var auto = new HelpText {
+                Heading = HeadingInfo.Default,
+                Copyright = CopyrightInfo.Default,
+                AdditionalNewLineAfterOption = true,
+                AddDashesToOption = !verbsIndex
+            };
 
             var errors = Enumerable.Empty<Error>();
 
@@ -245,32 +213,36 @@ namespace CommandLine.Text
                 errors = ((NotParsed<T>)parserResult).Errors;
 
                 if (FilterMeaningfulErrors(errors).Any())
-                {
                     auto = onError(auto);
-                }
             }
 
-            var license = ReflectionHelper.GetAttribute<AssemblyLicenseAttribute>();
-            if (license.IsJust())
+            ReflectionHelper.GetAttribute<AssemblyLicenseAttribute>()
+                .Do(license => license.AddToHelpText(auto, true));
+
+            var usageAttr = ReflectionHelper.GetAttribute<AssemblyUsageAttribute>();
+            var usageLines = HelpText.RenderUsageTextAsLines(parserResult, onExample).ToMaybe();
+
+            if (usageAttr.IsJust() || usageLines.IsJust())
             {
-                license.FromJust().AddToHelpText(auto, true);
+                var heading = auto.SentenceBuilder.UsageHeadingText();
+                if (heading.Length > 0)
+                    auto.AddPreOptionsLine(heading);
             }
 
-            var usage = ReflectionHelper.GetAttribute<AssemblyUsageAttribute>();
-            if (usage.IsJust())
-            {
-                usage.FromJust().AddToHelpText(auto, true);
-            }
+            usageAttr.Do(
+                usage => usage.AddToHelpText(auto, true));
+            
+            usageLines.Do(
+                lines => auto.AddPreOptionsLines(lines));
 
-            if ((verbsIndex && parserResult.VerbTypes.Any()) || errors.Any(e => e.Tag == ErrorType.NoVerbSelectedError))
+            if ((verbsIndex && parserResult.TypeInfo.Choices.Any())
+                || errors.Any(e => e.Tag == ErrorType.NoVerbSelectedError))
             {
                 auto.AddDashesToOption = false;
-                auto.AddVerbs(parserResult.VerbTypes.ToArray());
+                auto.AddVerbs(parserResult.TypeInfo.Choices.ToArray());
             }
             else
-            {
-                auto.AddOptions(parserResult.Value);
-            }
+                auto.AddOptions(parserResult);
 
             return auto;
         }
@@ -288,30 +260,21 @@ namespace CommandLine.Text
         public static HelpText AutoBuild<T>(ParserResult<T> parserResult)
         {
             if (parserResult.Tag != ParserResultType.NotParsed)
-            {
-                throw new InvalidOperationException();
-            }
+                throw new ArgumentException("Excepting NotParsed<T> type.", "parserResult");
 
             var errors = ((NotParsed<T>)parserResult).Errors;
 
             if (errors.Any(e => e.Tag == ErrorType.VersionRequestedError))
-            {
                 return new HelpText(HeadingInfo.Default).AddPreOptionsLine(Environment.NewLine);
-            }
 
             if (!errors.Any(e => e.Tag == ErrorType.HelpVerbRequestedError))
-            {
-                return AutoBuild(parserResult, current => DefaultParsingErrorsHandler(parserResult, current));
-            }
+                return AutoBuild(parserResult, current => DefaultParsingErrorsHandler(parserResult, current), e => e);
 
             var err = errors.OfType<HelpVerbRequestedError>().Single();
-            if (err.Matched)
-            {
-                var pr = new NotParsed<object>(err.Type.AutoDefault(), Enumerable.Empty<Error>());
-                return AutoBuild(pr, current => DefaultParsingErrorsHandler(pr, current));
-            }
-
-            return AutoBuild(parserResult, current => DefaultParsingErrorsHandler(parserResult, current), true);
+            var pr = new NotParsed<object>(TypeInfo.Create(err.Type), Enumerable.Empty<Error>());
+            return err.Matched
+                ? AutoBuild(pr, current => DefaultParsingErrorsHandler(pr, current), e => e)
+                : AutoBuild(parserResult, current => DefaultParsingErrorsHandler(parserResult, current), e => e, true);
         }
 
         /// <summary>
@@ -325,25 +288,19 @@ namespace CommandLine.Text
             if (current == null) throw new ArgumentNullException("current");
 
             if (FilterMeaningfulErrors(((NotParsed<T>)parserResult).Errors).Empty())
-            {
                 return current;
-            }
 
-            var errors = RenderParsingErrorsText(parserResult, current.SentenceBuilder.FormatError, 2);
-                // indent with two spaces
-            if (string.IsNullOrEmpty(errors))
-            {
+            var errors = RenderParsingErrorsTextAsLines(parserResult,
+                current.SentenceBuilder.FormatError,
+                current.SentenceBuilder.FormatMutuallyExclusiveSetErrors,
+                2); // indent with two spaces
+            if (errors.Empty())
                 return current;
-            }
 
-            current.AddPreOptionsLine(string.Concat(Environment.NewLine, current.SentenceBuilder.ErrorsHeadingText()));
-            var lines = errors.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-            foreach (var line in lines)
-            {
-                current.AddPreOptionsLine(line);
-            }
-
-            return current;
+            return current
+                .AddPreOptionsLine(
+                    string.Concat(Environment.NewLine, current.SentenceBuilder.ErrorsHeadingText()))
+                .AddPreOptionsLines(errors);
         }
 
         /// <summary>
@@ -360,6 +317,7 @@ namespace CommandLine.Text
         /// Adds a text line after copyright and before options usage strings.
         /// </summary>
         /// <param name="value">A <see cref="System.String"/> instance.</param>
+        /// <returns>Updated <see cref="CommandLine.Text.HelpText"/> instance.</returns>
         /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="value"/> is null or empty string.</exception>
         public HelpText AddPreOptionsLine(string value)
         {
@@ -370,6 +328,7 @@ namespace CommandLine.Text
         /// Adds a text line at the bottom, after options usage string.
         /// </summary>
         /// <param name="value">A <see cref="System.String"/> instance.</param>
+        /// <returns>Updated <see cref="CommandLine.Text.HelpText"/> instance.</returns>
         /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="value"/> is null or empty string.</exception>
         public HelpText AddPostOptionsLine(string value)
         {
@@ -377,16 +336,62 @@ namespace CommandLine.Text
         }
 
         /// <summary>
+        /// Adds text lines after copyright and before options usage strings.
+        /// </summary>
+        /// <param name="lines">A <see cref="System.String"/> sequence of line to add.</param>
+        /// <returns>Updated <see cref="CommandLine.Text.HelpText"/> instance.</returns>
+        public HelpText AddPreOptionsLines(IEnumerable<string> lines)
+        {
+            lines.ForEach(line => AddPreOptionsLine(line));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds text lines at the bottom, after options usage string.
+        /// </summary>
+        /// <param name="lines">A <see cref="System.String"/> sequence of line to add.</param>
+        /// <returns>Updated <see cref="CommandLine.Text.HelpText"/> instance.</returns>
+        public HelpText AddPostOptionsLines(IEnumerable<string> lines)
+        {
+            lines.ForEach(line => AddPostOptionsLine(line));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a text block of lines after copyright and before options usage strings.
+        /// </summary>
+        /// <param name="text">A <see cref="System.String"/> text block.</param>
+        /// <returns>Updated <see cref="CommandLine.Text.HelpText"/> instance.</returns>
+        public HelpText AddPreOptionsText(string text)
+        {
+            var lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            lines.ForEach(line => AddPreOptionsLine(line));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a text block of lines at the bottom, after options usage string.
+        /// </summary>
+        /// <param name="text">A <see cref="System.String"/> text block.</param>
+        /// <returns>Updated <see cref="CommandLine.Text.HelpText"/> instance.</returns>
+        public HelpText AddPostOptionsText(string text)
+        {
+            var lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            lines.ForEach(line => AddPostOptionsLine(line));
+            return this;
+        }
+
+        /// <summary>
         /// Adds a text block with options usage string.
         /// </summary>
-        /// <param name="options">The instance that collected command line arguments parsed with <see cref="Parser"/> class.</param>
-        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="options"/> is null.</exception>
-        public HelpText AddOptions<T>(T options)
+        /// <param name="result">A parsing computation result.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="result"/> is null.</exception>
+        public HelpText AddOptions<T>(ParserResult<T> result)
         {
-            if (Equals(options, default(T))) throw new ArgumentNullException("options");
+            if (result == null) throw new ArgumentNullException("result");
 
             return AddOptionsImpl(
-                this.GetSpecificationsFromType(options),
+                GetSpecificationsFromType(result.TypeInfo.Current),
                 SentenceBuilder.RequiredWord(),
                 MaximumDisplayWidth);
         }
@@ -403,7 +408,7 @@ namespace CommandLine.Text
             if (types.Length == 0) throw new ArgumentOutOfRangeException("types");
 
             return AddOptionsImpl(
-                this.AdaptVerbsToSpecifications(types),
+                AdaptVerbsToSpecifications(types),
                 SentenceBuilder.RequiredWord(),
                 MaximumDisplayWidth);
         }
@@ -412,14 +417,14 @@ namespace CommandLine.Text
         /// Adds a text block with options usage string.
         /// </summary>
         /// <param name="maximumLength">The maximum length of the help screen.</param>
-        /// <param name="options">The instance that collected command line arguments parsed with the <see cref="Parser"/> class.</param>
-        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="options"/> is null.</exception>    
-        public HelpText AddOptions<T>(int maximumLength, T options)
+        /// <param name="result">A parsing computation result.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="result"/> is null.</exception>    
+        public HelpText AddOptions<T>(int maximumLength, ParserResult<T> result)
         {
-            if (Equals(options, default(T))) throw new ArgumentNullException("options");
+            if (result == null) throw new ArgumentNullException("result");
 
             return AddOptionsImpl(
-                this.GetSpecificationsFromType(options),
+                GetSpecificationsFromType(result.TypeInfo.Current),
                 SentenceBuilder.RequiredWord(),
                 maximumLength);
         }
@@ -436,7 +441,10 @@ namespace CommandLine.Text
             if (types == null) throw new ArgumentNullException("types");
             if (types.Length == 0) throw new ArgumentOutOfRangeException("types");
 
-            return AddOptionsImpl(this.AdaptVerbsToSpecifications(types), SentenceBuilder.RequiredWord(), maximumLength);
+            return AddOptionsImpl(
+                AdaptVerbsToSpecifications(types),
+                SentenceBuilder.RequiredWord(),
+                maximumLength);
         }
 
         /// <summary>
@@ -444,33 +452,125 @@ namespace CommandLine.Text
         /// </summary>
         /// <param name='parserResult'>The <see cref="CommandLine.ParserResult{T}"/> containing the instance that collected command line arguments parsed with <see cref="CommandLine.Parser"/> class.</param>
         /// <param name="formatError">The error formatting delegate.</param>
+        /// <param name="formatMutuallyExclusiveSetErrors">The specialized <see cref="CommandLine.MutuallyExclusiveSetError"/> sequence formatting delegate.</param>
         /// <param name="indent">Number of spaces used to indent text.</param>
         /// <returns>The <see cref="System.String"/> that contains the parsing error message.</returns>
         public static string RenderParsingErrorsText<T>(
             ParserResult<T> parserResult,
             Func<Error, string> formatError,
+            Func<IEnumerable<MutuallyExclusiveSetError>, string> formatMutuallyExclusiveSetErrors,
+            int indent)
+        {
+            return string.Join(
+                Environment.NewLine,
+                RenderParsingErrorsTextAsLines(parserResult, formatError, formatMutuallyExclusiveSetErrors, indent));
+        }
+
+        /// <summary>
+        /// Builds a sequence of string that contains a parsing error message.
+        /// </summary>
+        /// <param name='parserResult'>The <see cref="CommandLine.ParserResult{T}"/> containing the instance that collected command line arguments parsed with <see cref="CommandLine.Parser"/> class.</param>
+        /// <param name="formatError">The error formatting delegate.</param>
+        /// <param name="formatMutuallyExclusiveSetErrors">The specialized <see cref="CommandLine.MutuallyExclusiveSetError"/> sequence formatting delegate.</param>
+        /// <param name="indent">Number of spaces used to indent text.</param>
+        /// <returns>A sequence of <see cref="System.String"/> that contains the parsing error message.</returns>
+        public static IEnumerable<string> RenderParsingErrorsTextAsLines<T>(
+            ParserResult<T> parserResult,
+            Func<Error, string> formatError,
+            Func<IEnumerable<MutuallyExclusiveSetError>, string> formatMutuallyExclusiveSetErrors,
             int indent)
         {
             if (parserResult == null) throw new ArgumentNullException("parserResult");
 
-            var meaningfulErrors = FilterMeaningfulErrors(((NotParsed<T>)parserResult).Errors);
+            var meaningfulErrors =
+                FilterMeaningfulErrors(((NotParsed<T>)parserResult).Errors);
             if (meaningfulErrors.Empty())
+                yield break;
+
+            foreach(var error in  meaningfulErrors
+                .Where(e => e.Tag != ErrorType.MutuallyExclusiveSetError))
             {
-                return string.Empty;
+                var line = new StringBuilder(indent.Spaces())
+                    .Append(formatError(error));
+                yield return line.ToString();
             }
 
-            var text = new StringBuilder();
-            foreach (var error in meaningfulErrors)
+            var mutuallyErrs = 
+                formatMutuallyExclusiveSetErrors(
+                    meaningfulErrors.OfType<MutuallyExclusiveSetError>());
+            if (mutuallyErrs.Length > 0)
             {
-                var line = new StringBuilder();
-                line.Append(indent.Spaces());
-
-                line.Append(formatError(error));
-
-                text.AppendLine(line.ToString());
+                var lines = mutuallyErrs
+                    .Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                foreach (var line in lines)
+                    yield return line;
             }
+        }
 
-            return text.ToString();
+        /// <summary>
+        /// Builds a string with usage text block created using <see cref="CommandLine.Text.UsageAttribute"/> data and metadata.
+        /// </summary>
+        /// <typeparam name="T">Type of parsing computation result.</typeparam>
+        /// <param name="parserResult">A parsing computation result.</param>
+        /// <returns>Resulting formatted text.</returns>
+        public static string RenderUsageText<T>(ParserResult<T> parserResult)
+        {
+            return RenderUsageText(parserResult, example => example);
+        }
+
+        /// <summary>
+        /// Builds a string with usage text block created using <see cref="CommandLine.Text.UsageAttribute"/> data and metadata.
+        /// </summary>
+        /// <typeparam name="T">Type of parsing computation result.</typeparam>
+        /// <param name="parserResult">A parsing computation result.</param>
+        /// <param name="mapperFunc">A mapping lambda normally used to translate text in other languages.</param>
+        /// <returns>Resulting formatted text.</returns>
+        public static string RenderUsageText<T>(ParserResult<T> parserResult, Func<Example, Example> mapperFunc)
+        {
+            return string.Join(Environment.NewLine, RenderUsageTextAsLines(parserResult, mapperFunc));
+        }
+
+        /// <summary>
+        /// Builds a string sequence with usage text block created using <see cref="CommandLine.Text.UsageAttribute"/> data and metadata.
+        /// </summary>
+        /// <typeparam name="T">Type of parsing computation result.</typeparam>
+        /// <param name="parserResult">A parsing computation result.</param>
+        /// <param name="mapperFunc">A mapping lambda normally used to translate text in other languages.</param>
+        /// <returns>Resulting formatted text.</returns>
+        public static IEnumerable<string> RenderUsageTextAsLines<T>(ParserResult<T> parserResult, Func<Example, Example> mapperFunc)
+        {
+            if (parserResult == null) throw new ArgumentNullException("parserResult");
+
+            var usage = GetUsageFromType(parserResult.TypeInfo.Current);
+            if (usage.MatchNothing())
+                yield break;
+
+            var usageTuple = usage.FromJust();
+            var examples = usageTuple.Item2;
+            var appAlias = usageTuple.Item1.ApplicationAlias ?? ReflectionHelper.GetAssemblyName();
+
+            foreach (var e in examples)
+            {
+                var example = mapperFunc(e);
+                var exampleText = new StringBuilder(example.HelpText)
+                    .Append(':');
+                yield return exampleText.ToString();
+                var styles = example.GetFormatStylesOrDefault();
+                foreach (var s in styles)
+                {
+                    var commandLine = new StringBuilder(2.Spaces())
+                        .Append(appAlias)
+                        .Append(' ')
+                        .Append(Parser.Default.FormatCommandLine(example.Sample,
+                            config =>
+                            {
+                                config.PreferShortName = s.PreferShortName;
+                                config.GroupSwitches = s.GroupSwitches;
+                                config.UseEqualToken = s.UseEqualToken;
+                            }));
+                    yield return commandLine.ToString();
+                }
+            }
         }
 
         /// <summary>
@@ -506,7 +606,7 @@ namespace CommandLine.Text
             do
             {
                 var wordBuffer = 0;
-                var words = value.Split(new[] { ' ' });
+                var words = value.Split(' ');
                 for (var i = 0; i < words.Length; i++)
                 {
                     if (words[i].Length < (maximumLength - wordBuffer))
@@ -526,9 +626,7 @@ namespace CommandLine.Text
                         break;
                     }
                     else
-                    {
                         break;
-                    }
                 }
                 value = value.Substring(Math.Min(wordBuffer, value.Length));
                 builder.AppendWhen(value.Length > 0, Environment.NewLine);
@@ -538,18 +636,33 @@ namespace CommandLine.Text
             builder.Append(value);
         }
 
-        private IEnumerable<Specification> GetSpecificationsFromType<T>(T options)
+        private IEnumerable<Specification> GetSpecificationsFromType(Type type)
         {
-            var type = options.GetType();
-            var optionSpecs = type.GetSpecifications(Specification.FromProperty)
-                    .OfType<OptionSpecification>()
-                    .Concat(new[] { CreateHelpEntry(), CreateVersionEntry() });
-            var valueSpecs = type.GetSpecifications(Specification.FromProperty)
+            var specs = type.GetSpecifications(Specification.FromProperty);
+            var optionSpecs = specs
+                .OfType<OptionSpecification>()
+                .Concat(new[] { MakeHelpEntry(), MakeVersionEntry() });
+            var valueSpecs = specs
                 .OfType<ValueSpecification>()
                 .OrderBy(v => v.Index);
             return Enumerable.Empty<Specification>()
                 .Concat(optionSpecs)
                 .Concat(valueSpecs);
+        }
+
+        private static Maybe<Tuple<UsageAttribute, IEnumerable<Example>>> GetUsageFromType(Type type)
+        {
+            return type.GetUsageData().Map(
+                tuple =>
+                {
+                    var prop = tuple.Item1;
+                    var attr = tuple.Item2;
+
+                    var examples = (IEnumerable<Example>)prop
+                        .GetValue(null, BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty, null, null, null);
+
+                    return Tuple.Create(attr, examples);
+                });
         }
 
         private IEnumerable<Specification> AdaptVerbsToSpecifications(IEnumerable<Type> types)
@@ -561,7 +674,7 @@ namespace CommandLine.Text
                             verbTuple.Item1.Name,
                             false,
                             verbTuple.Item1.HelpText,
-                            string.Empty)).Concat(new[] { CreateHelpEntry(), CreateVersionEntry() });
+                            string.Empty)).Concat(new[] { MakeHelpEntry(), MakeVersionEntry() });
         }
 
         private HelpText AddOptionsImpl(
@@ -575,15 +688,14 @@ namespace CommandLine.Text
 
             var remainingSpace = maximumLength - (maxLength + 6);
 
-            foreach (var option in specifications)
-            {
-                AddOption(requiredWord, maxLength, option, remainingSpace);
-            }
+            specifications.ForEach(
+                option =>
+                    AddOption(requiredWord, maxLength, option, remainingSpace));
 
             return this;
         }
 
-        private OptionSpecification CreateHelpEntry()
+        private OptionSpecification MakeHelpEntry()
         {
             return OptionSpecification.NewSwitch(
                 string.Empty,
@@ -593,7 +705,7 @@ namespace CommandLine.Text
                 string.Empty);
         }
 
-        private OptionSpecification CreateVersionEntry()
+        private OptionSpecification MakeVersionEntry()
         {
             return OptionSpecification.NewSwitch(
                 string.Empty,
@@ -613,42 +725,33 @@ namespace CommandLine.Text
         private HelpText AddOption(string requiredWord, int maxLength, Specification specification, int widthOfHelpText)
         {
             optionsHelp.Append("  ");
-            var name = new StringBuilder(maxLength);
-            if (specification.Tag == SpecificationType.Option)
-            {
-                name.Append(AddOptionName(maxLength, (OptionSpecification)specification));
-            }
-            else
-            {
-                name.Append(AddValueName(maxLength, (ValueSpecification)specification));
-            }
+            var name = new StringBuilder(maxLength)
+                .BimapIf(
+                    specification.Tag == SpecificationType.Option,
+                    it => it.Append(AddOptionName(maxLength, (OptionSpecification)specification)),
+                    it => it.Append(AddValueName(maxLength, (ValueSpecification)specification)));
 
-            optionsHelp.Append(name.Length < maxLength ? name.ToString().PadRight(maxLength) : name.ToString());
+            optionsHelp
+                .Append(name.Length < maxLength ? name.ToString().PadRight(maxLength) : name.ToString())
+                .Append("    ");
 
-            optionsHelp.Append("    ");
             var optionHelpText = specification.HelpText;
 
             if (addEnumValuesToHelpText && specification.EnumValues.Any())
-            {
                 optionHelpText += " Valid values: " + string.Join(", ", specification.EnumValues);
-            }
 
-            if (specification.DefaultValue.IsJust())
-            {
-                optionHelpText = "(Default: {0}) ".FormatLocal(specification.DefaultValue.FromJust()) + optionHelpText;
-            }
+            specification.DefaultValue.Do(
+                defaultValue => optionHelpText = "(Default: {0}) ".FormatLocal(defaultValue) + optionHelpText);
 
             if (specification.Required)
-            {
                 optionHelpText = "{0} ".FormatInvariant(requiredWord) + optionHelpText;
-            }
 
             if (!string.IsNullOrEmpty(optionHelpText))
             {
                 do
                 {
                     var wordBuffer = 0;
-                    var words = optionHelpText.Split(new[] { ' ' });
+                    var words = optionHelpText.Split(' ');
                     for (var i = 0; i < words.Length; i++)
                     {
                         if (words[i].Length < (widthOfHelpText - wordBuffer))
@@ -668,9 +771,7 @@ namespace CommandLine.Text
                             break;
                         }
                         else
-                        {
                             break;
-                        }
                     }
 
                     optionHelpText = optionHelpText.Substring(Math.Min(wordBuffer, optionHelpText.Length)).Trim();
@@ -680,47 +781,44 @@ namespace CommandLine.Text
                 while (optionHelpText.Length > widthOfHelpText);
             }
 
-            optionsHelp.Append(optionHelpText);
-            optionsHelp.Append(Environment.NewLine);
-            optionsHelp.AppendWhen(additionalNewLineAfterOption, Environment.NewLine);
+            optionsHelp
+                .Append(optionHelpText)
+                .Append(Environment.NewLine)
+                .AppendWhen(additionalNewLineAfterOption, Environment.NewLine);
 
             return this;
         }
 
         private string AddOptionName(int maxLength, OptionSpecification specification)
         {
-            var optionName = new StringBuilder(maxLength);
-            if (specification.ShortName.Length > 0)
-            {
-                optionName.AppendWhen(addDashesToOption, '-');
-                optionName.AppendFormat("{0}", specification.ShortName);
-                optionName.AppendFormatWhen(specification.MetaValue.Length > 0, " {0}", specification.MetaValue);
-                optionName.AppendWhen(specification.LongName.Length > 0, ", ");
-            }
-            if (specification.LongName.Length > 0)
-            {
-                optionName.AppendWhen(addDashesToOption, "--");
-                optionName.AppendFormat("{0}", specification.LongName);
-                optionName.AppendFormatWhen(specification.MetaValue.Length > 0, "={0}", specification.MetaValue);
-            }
-            return optionName.ToString();
+            return
+                new StringBuilder(maxLength)
+                    .MapIf(
+                        specification.ShortName.Length > 0,
+                        it => it
+                            .AppendWhen(addDashesToOption, '-')
+                            .AppendFormat("{0}", specification.ShortName)
+                            .AppendFormatWhen(specification.MetaValue.Length > 0, " {0}", specification.MetaValue)
+                            .AppendWhen(specification.LongName.Length > 0, ", "))
+                    .MapIf(
+                        specification.LongName.Length > 0,
+                        it => it
+                            .AppendWhen(addDashesToOption, "--")
+                            .AppendFormat("{0}", specification.LongName)
+                            .AppendFormatWhen(specification.MetaValue.Length > 0, "={0}", specification.MetaValue))
+                    .ToString();
         }
 
         private string AddValueName(int maxLength, ValueSpecification specification)
         {
-            var valueName = new StringBuilder(maxLength);
-
-            if (specification.MetaName.Length > 0)
-            {
-                valueName.AppendFormat("{0} (pos. {1})", specification.MetaName, specification.Index);
-            }
-            else
-            {
-                valueName.AppendFormat("value pos. {0}", specification.Index);
-            }
-            valueName.AppendFormatWhen(specification.MetaValue.Length > 0, " {0}", specification.MetaValue);
-
-            return valueName.ToString();
+            return new StringBuilder(maxLength)
+                .BimapIf(
+                    specification.MetaName.Length > 0,
+                    it => it.AppendFormat("{0} (pos. {1})", specification.MetaName, specification.Index),
+                    it => it.AppendFormat("value pos. {0}", specification.Index))
+                .AppendFormatWhen(
+                    specification.MetaValue.Length > 0, " {0}", specification.MetaValue)
+                .ToString();
         }
 
         private HelpText AddLine(StringBuilder builder, string value)
@@ -736,8 +834,8 @@ namespace CommandLine.Text
                 (length, spec) =>
                     {
                         var specLength = spec.Tag == SpecificationType.Option
-                            ? this.GetMaxOptionLength((OptionSpecification)spec)
-                            : this.GetMaxValueLength((ValueSpecification)spec);
+                            ? GetMaxOptionLength((OptionSpecification)spec)
+                            : GetMaxValueLength((ValueSpecification)spec);
 
                         return Math.Max(length, specLength);
                     });
@@ -753,17 +851,13 @@ namespace CommandLine.Text
 
             var metaLength = 0;
             if (spec.MetaValue.Length > 0)
-            {
                 metaLength = spec.MetaValue.Length + 1;
-            }
 
             if (hasShort)
             {
                 ++specLength;
                 if (AddDashesToOption)
-                {
                     ++specLength;
-                }
 
                 specLength += metaLength;
             }
@@ -772,17 +866,13 @@ namespace CommandLine.Text
             {
                 specLength += spec.LongName.Length;
                 if (AddDashesToOption)
-                {
                     specLength += 2;
-                }
 
                 specLength += metaLength;
             }
 
             if (hasShort && hasLong)
-            {
                 specLength += 2; // ", "
-            }
 
             return specLength;
         }
@@ -795,18 +885,12 @@ namespace CommandLine.Text
 
             var metaLength = 0;
             if (spec.MetaValue.Length > 0)
-            {
                 metaLength = spec.MetaValue.Length + 1;
-            }
 
             if (hasMeta)
-            {
                 specLength += spec.MetaName.Length + spec.Index.ToStringInvariant().Length + 8; //METANAME (pos. N)
-            }
             else
-            {
                 specLength += spec.Index.ToStringInvariant().Length + 11; // "value pos. N"
-            }
 
             specLength += metaLength;
 

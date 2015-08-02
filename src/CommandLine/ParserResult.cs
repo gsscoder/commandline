@@ -1,4 +1,4 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,38 @@ using System.Linq;
 
 namespace CommandLine
 {
+    sealed class TypeInfo
+    {
+        private readonly Type current;
+        private readonly IEnumerable<Type> choices; 
+
+        private TypeInfo(Type current, IEnumerable<Type> choices)
+        {
+            this.current = current;
+            this.choices = choices;
+        }
+
+        public Type Current
+        {
+            get { return this.current; }
+        }
+
+        public IEnumerable<Type> Choices
+        {
+            get { return this.choices; }
+        }
+
+        public static TypeInfo Create(Type current)
+        {
+            return new TypeInfo(current, Enumerable.Empty<Type>());
+        }
+
+        public static TypeInfo Create(Type current, IEnumerable<Type> choices)
+        {
+            return new TypeInfo(current, choices);
+        }
+    }
+
     /// <summary>
     /// Discriminator enumeration of <see cref="CommandLine.ParserResultType"/> derivates.
     /// </summary>
@@ -30,14 +62,12 @@ namespace CommandLine
     public abstract class ParserResult<T>
     {
         private readonly ParserResultType tag;
-        private readonly T value;
-        private readonly IEnumerable<Type> verbTypes;
+        private readonly TypeInfo typeInfo;
 
-        internal ParserResult(ParserResultType tag, T value, IEnumerable<Type> verbTypes)
+        internal ParserResult(ParserResultType tag, TypeInfo typeInfo)
         {
             this.tag = tag;
-            this.value = value;
-            this.verbTypes = verbTypes;
+            this.typeInfo = typeInfo;
         }
 
         /// <summary>
@@ -48,14 +78,9 @@ namespace CommandLine
             get { return this.tag; }
         }
 
-        internal IEnumerable<Type> VerbTypes
+        internal TypeInfo TypeInfo
         {
-            get { return verbTypes; }
-        }
-
-        internal T Value
-        {
-            get { return value; }
+            get { return typeInfo; }
         }
     }
 
@@ -65,22 +90,25 @@ namespace CommandLine
     /// <typeparam name="T">The type with attributes that define the syntax of parsing rules.</typeparam>
     public sealed class Parsed<T> : ParserResult<T>, IEquatable<Parsed<T>>
     {
-        internal Parsed(T value, IEnumerable<Type> verbTypes)
-            : base(ParserResultType.Parsed, value, verbTypes)
+        private readonly T value;
+
+        internal Parsed(T value, TypeInfo typeInfo)
+            : base(ParserResultType.Parsed, typeInfo)
         {
+            this.value = value;
         }
 
         internal Parsed(T value)
-            : this(value, Enumerable.Empty<Type>())
+            : this(value, TypeInfo.Create(value.GetType()))
         {
         }
 
         /// <summary>
         /// Gets the instance with parsed values.
         /// </summary>
-        public new T Value
+        public T Value
         {
-            get { return base.Value; }
+            get { return value; }
         }
 
         /// <summary>
@@ -105,7 +133,7 @@ namespace CommandLine
         /// <remarks>A hash code for the current <see cref="System.Object"/>.</remarks>
         public override int GetHashCode()
         {
-            return new { ParserResultType = this.Tag, Value, VerbTypes }.GetHashCode();
+            return new { Tag, Value }.GetHashCode();
         }
 
         /// <summary>
@@ -121,8 +149,7 @@ namespace CommandLine
             }
 
             return this.Tag.Equals(other.Tag)
-                    && Value.Equals(other.Value)
-                    && VerbTypes.SequenceEqual(other.VerbTypes);
+                    && Value.Equals(other.Value);
         }
     }
 
@@ -134,17 +161,11 @@ namespace CommandLine
     {
         private readonly IEnumerable<Error> errors;
 
-        internal NotParsed(T value, IEnumerable<Type> verbTypes, IEnumerable<Error> errors)
-            : base(ParserResultType.NotParsed, value, verbTypes)
+        internal NotParsed(TypeInfo typeInfo, IEnumerable<Error> errors)
+            : base(ParserResultType.NotParsed, typeInfo)
         {
             this.errors = errors;
         }
-
-        internal NotParsed(T value, IEnumerable<Error> errors)
-            : this(value, Enumerable.Empty<Type>(), errors)
-        {
-        }
-
 
         /// <summary>
         /// Gets the sequence of parsing errors.
@@ -176,7 +197,8 @@ namespace CommandLine
         /// <remarks>A hash code for the current <see cref="System.Object"/>.</remarks>
         public override int GetHashCode()
         {
-            return new { Value, Errors }.GetHashCode();
+            //return new { Value, Errors }.GetHashCode();
+            return new { Tag, Errors }.GetHashCode();
         }
 
         /// <summary>
@@ -195,13 +217,16 @@ namespace CommandLine
         }
     }
 
-    internal static class NotParsedExtensions
+    partial class ParserResultExtensions
     {
-        public static NotParsed<T> MapErrors<T>(
-            this NotParsed<T> parserResult,
+        internal static ParserResult<T> MapErrors<T>(
+            this ParserResult<T> parserResult,
             Func<IEnumerable<Error>, IEnumerable<Error>> func)
         {
-            return new NotParsed<T>(parserResult.Value, func(parserResult.Errors));
+            var notParsed = parserResult as NotParsed<T>;
+            if (notParsed != null)
+                return new NotParsed<T>(notParsed.TypeInfo, func(notParsed.Errors));
+            return parserResult;
         }
     }
 }

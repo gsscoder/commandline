@@ -1,4 +1,4 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 
@@ -300,9 +300,20 @@ namespace CommandLine
     /// </summary>
     public sealed class MutuallyExclusiveSetError : NamedError
     {
-        internal MutuallyExclusiveSetError(NameInfo nameInfo)
+        private readonly string setName;
+
+        internal MutuallyExclusiveSetError(NameInfo nameInfo, string setName)
             : base(ErrorType.MutuallyExclusiveSetError, nameInfo)
         {
+            this.setName = setName;
+        }
+
+        /// <summary>
+        /// Option's set name.
+        /// </summary>
+        public string SetName
+        {
+            get { return setName; }
         }
     }
 

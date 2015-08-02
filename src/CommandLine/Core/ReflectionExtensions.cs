@@ -1,4 +1,4 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections;
@@ -7,10 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CommandLine.Infrastructure;
+using CommandLine.Text;
+using CSharpx;
 
 namespace CommandLine.Core
 {
-    internal static class ReflectionExtensions
+    static class ReflectionExtensions
     {
         public static IEnumerable<T> GetSpecifications<T>(this Type type, Func<PropertyInfo, T> selector)
         {
@@ -23,11 +25,33 @@ namespace CommandLine.Core
                    select selector(g.First());
         }
 
+        public static Maybe<VerbAttribute> GetVerbSpecification(this Type type)
+        {
+            return
+                (from attr in
+                 type.FlattenHierarchy().SelectMany(x => x.GetCustomAttributes(typeof(VerbAttribute), true))
+                 let vattr = (VerbAttribute)attr
+                 select vattr)
+                    .SingleOrDefault()
+                    .ToMaybe();
+        }
+
+        public static Maybe<Tuple<PropertyInfo, UsageAttribute>> GetUsageData(this Type type)
+        {
+            return
+                (from pi in type.FlattenHierarchy().SelectMany(x => x.GetProperties())
+                    let attrs = pi.GetCustomAttributes(true)
+                    where attrs.OfType<UsageAttribute>().Any()
+                    select Tuple.Create(pi, (UsageAttribute)attrs.First()))
+                        .SingleOrDefault()
+                        .ToMaybe();
+        }
+
         private static IEnumerable<Type> FlattenHierarchy(this Type type)
         {
             if (type == null)
             {
-                yield break;         
+                yield break;
             }
             yield return type;
             foreach (var @interface in type.SafeGetInterfaces())
@@ -115,9 +139,12 @@ namespace CommandLine.Core
 
         public static bool IsMutable(this Type type)
         {
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Any(p => p.CanWrite);
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance).Any();
-            return props || fields;
+            Func<bool> isMutable = () => {
+                var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Any(p => p.CanWrite);
+                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance).Any();
+                return props || fields;
+            };
+            return type != typeof(object) ? isMutable() : true;
         }
 
         public static object CreateDefaultForImmutable(this Type type)
@@ -143,6 +170,57 @@ namespace CommandLine.Core
             var ctorTypes = type.GetSpecifications(pi => pi.PropertyType).ToArray();
  
             return ReflectionHelper.CreateDefaultImmutableInstance(type, ctorTypes);
+        }
+
+        public static TypeInfo ToTypeInfo(this Type type)
+        {
+            return TypeInfo.Create(type);
+        }
+
+        public static object StaticMethod(this Type type, string name, params object[] args)
+        {
+            return type.InvokeMember(
+                name,
+                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
+                null,
+                null,
+                args);
+        }
+
+        public static object StaticProperty(this Type type, string name)
+        {
+            return type.InvokeMember(
+                name,
+                BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Static,
+                null,
+                null,
+                new object[] { });
+        }
+
+        public static object InstanceProperty(this Type type, string name, object target)
+        {
+            return type.InvokeMember(
+                name,
+                BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance,
+                null,
+                target,
+                new object[] { });
+        }
+
+        public static bool IsPrimitiveEx(this Type type)
+        {
+            return
+                type.IsValueType ||
+                type.IsPrimitive ||
+                new [] { 
+                    typeof(string),
+                    typeof(decimal),
+                    typeof(DateTime),
+                    typeof(DateTimeOffset),
+                    typeof(TimeSpan),
+                    typeof(Guid)
+                }.Contains(type) ||
+                Convert.GetTypeCode(type) != TypeCode.Object;
         }
     }
 }

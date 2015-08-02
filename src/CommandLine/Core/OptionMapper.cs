@@ -1,21 +1,22 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CommandLine.Infrastructure;
+using CSharpx;
+using RailwaySharp.ErrorHandling;
 
 namespace CommandLine.Core
 {
     internal static class OptionMapper
     {
-        public static StatePair<
-            IEnumerable<SpecificationProperty>>
-                MapValues(
-                    IEnumerable<SpecificationProperty> propertyTuples,
-                    IEnumerable<KeyValuePair<string, IEnumerable<string>>> options,
-                    Func<IEnumerable<string>, Type, bool, Maybe<object>> converter,
-                    StringComparer comparer)
+        public static Result<
+            IEnumerable<SpecificationProperty>, Error>
+            MapValues(
+                IEnumerable<SpecificationProperty> propertyTuples,
+                IEnumerable<KeyValuePair<string, IEnumerable<string>>> options,
+                Func<IEnumerable<string>, Type, bool, Maybe<object>> converter,
+                StringComparer comparer)
         {
             var sequencesAndErrors = propertyTuples
                 .Select(pt =>
@@ -34,7 +35,7 @@ namespace CommandLine.Core
                                                 Maybe.Just<Error>(new BadFormatConversionError(((OptionSpecification)pt.Specification).FromOptionSpecification())))),
                                 Tuple.Create(pt, Maybe.Nothing<Error>()))
                 );
-            return StatePair.Create(
+            return Result.Succeed(
                 sequencesAndErrors.Select(se => se.Item1),
                 sequencesAndErrors.Select(se => se.Item2).OfType<Just<Error>>().Select(se => se.Value));
         }

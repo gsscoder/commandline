@@ -1,13 +1,14 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Linq;
 using System.Reflection;
 using CommandLine.Core;
+using CSharpx;
 
 namespace CommandLine.Infrastructure
 {
-    internal static class ReflectionHelper
+    static class ReflectionHelper
     {
         public static Maybe<TAttribute> GetAttribute<TAttribute>()
             where TAttribute : Attribute
