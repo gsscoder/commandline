@@ -3,7 +3,7 @@
 [![Nuget](https://img.shields.io/nuget/v/commandlineparser.svg)](http://nuget.org/packages/commandlineparser)
 [![Nuget](https://img.shields.io/nuget/vpre/commandlineparser.svg)](http://nuget.org/packages/commandlineparser)
 
-Command Line Parser Library 2.0.215.0 beta for CLR.
+Command Line Parser Library 2.0.219.0 beta for CLR.
 ===
 The Command Line Parser Library offers CLR applications a clean and concise API for manipulating command line arguments and related tasks, such as defining switches, options and verb commands. It allows you to display a help screen with a high degree of customization and a simple way to report syntax errors to the end user.
 
@@ -48,7 +48,7 @@ To build:
 
 Public API:
 ---
-Latest changes are recorded from Version 1.9.4.91, please refer to [this document](https://github.com/gsscoder/commandline/blob/master/doc/PublicAPI.md).
+Latest changes are recorded from Version 1.9.4.91, please refer to [this document](https://github.com/gsscoder/commandline/blob/master/docs/PublicAPI.md).
 
 Used by:
 ---
@@ -235,6 +235,8 @@ Latest Changes:
   - Minor `HelpText` refactorings.
   - Issue #210 (reported by @mac2000) Implemented.
   - Test refactorings.
+  - Fixing XML comments.
+  - Changes in usage text handling.
 
 Contact:
 ---

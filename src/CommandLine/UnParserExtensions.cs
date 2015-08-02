@@ -1,4 +1,4 @@
-﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections;
@@ -46,11 +46,19 @@ namespace CommandLine
             set { PopsicleSetter.Set(Consumed, ref useEqualToken, value); }
         }
 
+        /// <summary>
+        /// Factory method that creates an instance of <see cref="CommandLine.UnParserSettings"/> with GroupSwitches set to true.
+        /// </summary>
+        /// <returns>A properly initalized <see cref="CommandLine.UnParserSettings"/> instance.</returns>
         public static UnParserSettings WithGroupSwitchesOnly()
         {
             return new UnParserSettings { GroupSwitches = true };
         }
 
+        /// <summary>
+        /// Factory method that creates an instance of <see cref="CommandLine.UnParserSettings"/> with UseEqualToken set to true.
+        /// </summary>
+        /// <returns>A properly initalized <see cref="CommandLine.UnParserSettings"/> instance.</returns>
         public static UnParserSettings WithUseEqualTokenOnly()
         {
             return new UnParserSettings { UseEqualToken = true };
@@ -67,7 +75,7 @@ namespace CommandLine
         /// <summary>
         /// Format a command line argument string from a parsed instance. 
         /// </summary>
-        /// <typeparam name="T">Type of <see cref="options"/>.</typeparam>
+        /// <typeparam name="T">Type of <paramref name="options"/>.</typeparam>
         /// <param name="parser">Parser instance.</param>
         /// <param name="options">A parsed (or manually correctly constructed instance).</param>
         /// <returns>A string with command line arguments.</returns>
@@ -79,7 +87,7 @@ namespace CommandLine
         /// <summary>
         /// Format a command line argument string from a parsed instance. 
         /// </summary>
-        /// <typeparam name="T">Type of <see cref="options"/>.</typeparam>
+        /// <typeparam name="T">Type of <paramref name="options"/>.</typeparam>
         /// <param name="parser">Parser instance.</param>
         /// <param name="options">A parsed (or manually correctly constructed instance).</param>
         /// <param name="configuration">The <see cref="Action{UnParserSettings}"/> lambda used to configure

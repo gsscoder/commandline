@@ -1,4 +1,4 @@
-// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See doc/License.md in the project root for license information.
+// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
 using System;
 using System.Collections.Generic;
@@ -148,7 +148,7 @@ namespace CommandLine.Text
 
         /// <summary>
         /// Gets or sets a value indicating whether the format of options should contain dashes.
-        /// It modifies behavior of <see cref="AddOptions{T}(T)"/> method.
+        /// It modifies behavior of <see cref="AddOptions{T}(ParserResult{T})"/> method.
         /// </summary>
         public bool AddDashesToOption
         {
@@ -219,15 +219,21 @@ namespace CommandLine.Text
             ReflectionHelper.GetAttribute<AssemblyLicenseAttribute>()
                 .Do(license => license.AddToHelpText(auto, true));
 
-            ReflectionHelper.GetAttribute<AssemblyUsageAttribute>()
-                .Do(usage => usage.AddToHelpText(auto, true));
+            var usageAttr = ReflectionHelper.GetAttribute<AssemblyUsageAttribute>();
+            var usageLines = HelpText.RenderUsageTextAsLines(parserResult, onExample).ToMaybe();
 
-            var usageLines = HelpText.RenderUsageTextAsLines(parserResult, onExample);
-            if (usageLines.Any())
+            if (usageAttr.IsJust() || usageLines.IsJust())
             {
-                auto.AddPreOptionsLine(auto.SentenceBuilder.UsageHeadingText());
-                auto.AddPreOptionsLines(usageLines);
+                var heading = auto.SentenceBuilder.UsageHeadingText();
+                if (heading.Length > 0)
+                    auto.AddPreOptionsLine(heading);
             }
+
+            usageAttr.Do(
+                usage => usage.AddToHelpText(auto, true));
+            
+            usageLines.Do(
+                lines => auto.AddPreOptionsLines(lines));
 
             if ((verbsIndex && parserResult.TypeInfo.Choices.Any())
                 || errors.Any(e => e.Tag == ErrorType.NoVerbSelectedError))
@@ -378,11 +384,10 @@ namespace CommandLine.Text
         /// <summary>
         /// Adds a text block with options usage string.
         /// </summary>
-        /// <param name="options">The instance that collected command line arguments parsed with <see cref="Parser"/> class.</param>
-        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="options"/> is null.</exception>
+        /// <param name="result">A parsing computation result.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="result"/> is null.</exception>
         public HelpText AddOptions<T>(ParserResult<T> result)
         {
-            //if (Equals(options, default(T))) throw new ArgumentNullException("options");
             if (result == null) throw new ArgumentNullException("result");
 
             return AddOptionsImpl(
@@ -412,8 +417,8 @@ namespace CommandLine.Text
         /// Adds a text block with options usage string.
         /// </summary>
         /// <param name="maximumLength">The maximum length of the help screen.</param>
-        /// <param name="options">The instance that collected command line arguments parsed with the <see cref="Parser"/> class.</param>
-        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="options"/> is null.</exception>    
+        /// <param name="result">A parsing computation result.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown when parameter <paramref name="result"/> is null.</exception>    
         public HelpText AddOptions<T>(int maximumLength, ParserResult<T> result)
         {
             if (result == null) throw new ArgumentNullException("result");
