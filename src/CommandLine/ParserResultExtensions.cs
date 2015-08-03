@@ -91,7 +91,7 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -116,8 +116,8 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -148,9 +148,9 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -187,10 +187,10 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -233,11 +233,11 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -286,12 +286,12 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -346,13 +346,13 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -413,14 +413,14 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -487,15 +487,15 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -568,16 +568,16 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -656,17 +656,17 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
-        /// <typeparam name="T11">Eleventh verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
+        /// <typeparam name="T11">Verb type #11.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -751,18 +751,18 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
-        /// <typeparam name="T11">Eleventh verb type.</typeparam>
-        /// <typeparam name="T12">Twelfth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
+        /// <typeparam name="T11">Verb type #11.</typeparam>
+        /// <typeparam name="T12">Verb type #12.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -853,19 +853,19 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
-        /// <typeparam name="T11">Eleventh verb type.</typeparam>
-        /// <typeparam name="T12">Twelfth verb type.</typeparam>
-        /// <typeparam name="T13">Thirteenth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
+        /// <typeparam name="T11">Verb type #11.</typeparam>
+        /// <typeparam name="T12">Verb type #12.</typeparam>
+        /// <typeparam name="T13">Verb type #13.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -962,20 +962,20 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
-        /// <typeparam name="T11">Eleventh verb type.</typeparam>
-        /// <typeparam name="T12">Twelfth verb type.</typeparam>
-        /// <typeparam name="T13">Thirteenth verb type.</typeparam>
-        /// <typeparam name="T14">Fourteenth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
+        /// <typeparam name="T11">Verb type #11.</typeparam>
+        /// <typeparam name="T12">Verb type #12.</typeparam>
+        /// <typeparam name="T13">Verb type #13.</typeparam>
+        /// <typeparam name="T14">Verb type #14.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -1078,21 +1078,21 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
-        /// <typeparam name="T11">Eleventh verb type.</typeparam>
-        /// <typeparam name="T12">Twelfth verb type.</typeparam>
-        /// <typeparam name="T13">Thirteenth verb type.</typeparam>
-        /// <typeparam name="T14">Fourteenth verb type.</typeparam>
-        /// <typeparam name="T15">Fifteenth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
+        /// <typeparam name="T11">Verb type #11.</typeparam>
+        /// <typeparam name="T12">Verb type #12.</typeparam>
+        /// <typeparam name="T13">Verb type #13.</typeparam>
+        /// <typeparam name="T14">Verb type #14.</typeparam>
+        /// <typeparam name="T15">Verb type #15.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>
@@ -1201,22 +1201,22 @@ namespace CommandLine
         /// <summary>
         /// Provides a way to transform result data into another value.
         /// </summary>
-        /// <typeparam name="T1">First verb type.</typeparam>
-        /// <typeparam name="T2">Second verb type.</typeparam>
-        /// <typeparam name="T3">Third verb type.</typeparam>
-        /// <typeparam name="T4">Fourth verb type.</typeparam>
-        /// <typeparam name="T5">Fifth verb type.</typeparam>
-        /// <typeparam name="T6">Sixth verb type.</typeparam>
-        /// <typeparam name="T7">Seventh verb type.</typeparam>
-        /// <typeparam name="T8">Eighth verb type.</typeparam>
-        /// <typeparam name="T9">Ninth verb type.</typeparam>
-        /// <typeparam name="T10">Tenth verb type.</typeparam>
-        /// <typeparam name="T11">Eleventh verb type.</typeparam>
-        /// <typeparam name="T12">Twelfth verb type.</typeparam>
-        /// <typeparam name="T13">Thirteenth verb type.</typeparam>
-        /// <typeparam name="T14">Fourteenth verb type.</typeparam>
-        /// <typeparam name="T15">Fifteenth verb type.</typeparam>
-        /// <typeparam name="T16">Sixteenth verb type.</typeparam>
+        /// <typeparam name="T1">Verb type #1.</typeparam>
+        /// <typeparam name="T2">Verb type #2.</typeparam>
+        /// <typeparam name="T3">Verb type #3.</typeparam>
+        /// <typeparam name="T4">Verb type #4.</typeparam>
+        /// <typeparam name="T5">Verb type #5.</typeparam>
+        /// <typeparam name="T6">Verb type #6.</typeparam>
+        /// <typeparam name="T7">Verb type #7.</typeparam>
+        /// <typeparam name="T8">Verb type #8.</typeparam>
+        /// <typeparam name="T9">Verb type #9.</typeparam>
+        /// <typeparam name="T10">Verb type #10.</typeparam>
+        /// <typeparam name="T11">Verb type #11.</typeparam>
+        /// <typeparam name="T12">Verb type #12.</typeparam>
+        /// <typeparam name="T13">Verb type #13.</typeparam>
+        /// <typeparam name="T14">Verb type #14.</typeparam>
+        /// <typeparam name="T15">Verb type #15.</typeparam>
+        /// <typeparam name="T16">Verb type #16.</typeparam>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="result">The result in verb scenario.</param>
         /// <param name="parsedFunc1">Lambda executed on successful parsing of <typeparamref name="T1"/>.</param>

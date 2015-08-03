@@ -1,0 +1,129 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace CommandLine
+{
+<#
+var maxArgCount = 16;
+#>
+    /// <summary>
+    /// Provides convenience extension methods for <see cref="CommandLine.ParserResult{T}"/>.
+    /// </summary>
+    public static partial class ParserResultExtensions
+    {
+        /// <summary>
+        /// Executes <paramref name="action"/> if <see cref="CommandLine.ParserResult{T}"/> contains
+        /// parsed values.
+        /// </summary>
+        /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
+        /// <param name="result">An <see cref="CommandLine.ParserResult{T}"/> instance.</param>
+        /// <param name="action">The <see cref="Action{T}"/> to execute.</param>
+        /// <returns>The same <paramref name="result"/> instance.</returns>
+        public static ParserResult<T> WithParsed<T>(this ParserResult<T> result, Action<T> action)
+        {
+            var parsed = result as Parsed<T>;
+            if (parsed != null)
+            {
+                action(parsed.Value);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes <paramref name="action"/> if parsed values are of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
+        /// <param name="result">An verb result instance.</param>
+        /// <param name="action">The <see cref="Action{T}"/> to execute.</param>
+        /// <returns>The same <paramref name="result"/> instance.</returns>
+        public static ParserResult<object> WithParsed<T>(this ParserResult<object> result, Action<T> action)
+        {
+            var parsed = result as Parsed<object>;
+            if (parsed != null)
+            {
+                if (parsed.Value is T)
+                {
+                    action((T)parsed.Value);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Executes <paramref name="action"/> if <see cref="CommandLine.ParserResult{T}"/> lacks
+        /// parsed values and contains errors.
+        /// </summary>
+        /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
+        /// <param name="result">An <see cref="CommandLine.ParserResult{T}"/> instance.</param>
+        /// <param name="action">The <see cref="System.Action"/> delegate to execute.</param>
+        /// <returns>The same <paramref name="result"/> instance.</returns>
+        public static ParserResult<T> WithNotParsed<T>(this ParserResult<T> result, Action<IEnumerable<Error>> action)
+        {
+            var notParsed = result as NotParsed<T>;
+            if (notParsed != null)
+            {
+                action(notParsed.Errors);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Provides a way to transform result data into another value.
+        /// </summary>
+        /// <typeparam name="TSource">Type of the target instance built with parsed value.</typeparam>
+        /// <typeparam name="TResult">The type of the new value.</typeparam>
+        /// <param name="result">An <see cref="CommandLine.ParserResult{T}"/> instance.</param>
+        /// <param name="parsedFunc">Lambda executed on successful parsing.</param>
+        /// <param name="notParsedFunc">Lambda executed on failed parsing.</param>
+        /// <returns>The new value.</returns>
+        public static TResult Return<TSource, TResult>(this ParserResult<TSource> result,
+            Func<TSource, TResult> parsedFunc,
+            Func<IEnumerable<Error>, TResult> notParsedFunc)
+        {
+            var parsed = result as Parsed<TSource>;
+            if (parsed != null)
+            {
+                return parsedFunc(parsed.Value);
+            }
+            return notParsedFunc(((NotParsed<TSource>)result).Errors);
+        }
+<#
+for (var argCount = 1; argCount <= maxArgCount; argCount++)
+{
+#>
+
+        /// <summary>
+        /// Provides a way to transform result data into another value.
+        /// </summary>
+        <#= string.Join("\r\n        ", Enumerable.Range(1, argCount).Select(pos => string.Format("/// <typeparam name=\"T{0}\">Verb type #{0}.</typeparam>", pos))) #>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="result">The result in verb scenario.</param>
+        <#= string.Join("\r\n        ", Enumerable.Range(1, argCount).Select(pos => string.Format("/// <param name=\"parsedFunc{0}\">Lambda executed on successful parsing of <typeparamref name=\"T{0}\"/>.</param>", pos))) #>
+        /// <param name="notParsedFunc">Lambda executed on failed parsing.</param>
+        /// <returns>The new value.</returns>
+        public static TResult Return<<#= string.Join(", ", Enumerable.Range(1, argCount).Select(pos => string.Format("T{0}", pos))) #>, TResult>(this ParserResult<object> result,
+            <#= string.Join("\r\n            ", Enumerable.Range(1, argCount).Select(pos => string.Format("Func<T{0}, TResult> parsedFunc{0},", pos))) #>
+            Func<IEnumerable<Error>, TResult> notParsedFunc)
+        {
+            var parsed = result as Parsed<object>;
+            if (parsed != null)
+            {
+                <#= string.Join("\r\n                ", Enumerable.Range(1, argCount).Select(pos => string.Format("if (parsed.Value is T{0})\r\n                {{\r\n                    return parsedFunc{0}((T{0})parsed.Value);\r\n                }}", pos))) #>
+                throw new InvalidOperationException();
+            }
+            return notParsedFunc(((NotParsed<object>)result).Errors);
+        }
+<#
+}
+#>
+    }
+}
