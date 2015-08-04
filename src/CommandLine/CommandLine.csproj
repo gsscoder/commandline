@@ -74,6 +74,9 @@
     <Compile Include="Core\ArgumentsExtensions.cs" />
     <Compile Include="Core\KeyValuePairHelper.cs" />
     <Compile Include="Core\PreprocessorGuards.cs" />
+    <Compile Include="Core\ITokenizer.cs" />
+    <Compile Include="Core\TokenizerHybrid.cs" />
+    <Compile Include="Core\TokenizerWindows.cs" />
     <Compile Include="Core\TypeDescriptor.cs" />
     <Compile Include="Core\Scalar.cs" />
     <Compile Include="Core\Sequence.cs" />
@@ -82,7 +85,7 @@
     <Compile Include="ErrorExtensions.cs" />
     <Compile Include="Infrastructure\EnumerableExtensions`1.cs" />
     <Compile Include="Core\InstanceChooser.cs" />
-    <Compile Include="Core\Tokenizer.cs">
+    <Compile Include="Core\TokenizerGetOpt.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\Verb.cs" />
@@ -148,6 +151,7 @@
     <Compile Include="ValueAttribute.cs" />
     <Compile Include="VerbAttribute.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.  

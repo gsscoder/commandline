@@ -18,11 +18,13 @@ namespace CommandLine.Core
             StringComparer nameComparer,
             CultureInfo parsingCulture)
         {
+            var tokenizer = new TokenizerGetOpt();
+
             return Choose(
                 (args, optionSpecs) =>
                     {
-                        var tokens = Tokenizer.Tokenize(args, name => NameLookup.Contains(name, optionSpecs, nameComparer));
-                        var explodedTokens = Tokenizer.ExplodeOptionList(tokens, name => NameLookup.HavingSeparator(name, optionSpecs, nameComparer));
+                        var tokens = tokenizer.Tokenize(args, name => NameLookup.Contains(name, optionSpecs, nameComparer));
+                        var explodedTokens = tokenizer.ExplodeOptionList(tokens, name => NameLookup.HavingSeparator(name, optionSpecs, nameComparer));
                         return explodedTokens;
                     },
                 types,

@@ -435,13 +435,14 @@ namespace CommandLine.Tests.Unit.Core
                     IntValue = 20
                 };
             var arguments = new[] { "--stringvalue", "str1", "--", "10", "-a", "--bee", "-c", "20" };
+            var tokenizer = new TokenizerGetOpt();
 
             // Exercize system 
             var result = InstanceBuilder.Build(
                 Maybe.Just<Func<FakeOptionsWithValues>>(() => new FakeOptionsWithValues()),
                 (a, optionSpecs) =>
-                    Tokenizer.PreprocessDashDash(a,
-                        args => Tokenizer.Tokenize(args, name => NameLookup.Contains(name, optionSpecs, StringComparer.Ordinal))),
+                    tokenizer.Preprocess(a,
+                        args => tokenizer.Tokenize(args, name => NameLookup.Contains(name, optionSpecs, StringComparer.Ordinal))),
                 arguments,
                 StringComparer.Ordinal,
                 CultureInfo.InvariantCulture);
