@@ -1,12 +1,11 @@
 ﻿// Copyright 2005-2015 Giacomo Stelluti Scala & Contributors. All rights reserved. See License.md in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using CommandLine.Tests.Fakes;
 using FluentAssertions;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace CommandLine.Tests.Unit
@@ -129,6 +128,105 @@ namespace CommandLine.Tests.Unit
 
             // Verify outcome
             ((Parsed<Simple_Options_With_Values>)result).Value.ShouldBeEquivalentTo(expectedOptions);
+            // Teardown
+        }
+
+        [Fact]
+        [Trait("windows-style-options", "stock long and short names only")]
+        public void Parse_options_with_win_style_enabled()
+        {
+            // Fixture setup
+            var expectedOptions = new Simple_Options_With_Values
+            {
+                StringValue = "astring",
+                LongValue = 20L,
+                StringSequence = new[] { "--aaa", "-b", "--ccc" },
+                IntValue = 30
+            };
+
+            var sut = new Parser(with => with.EnableDashDash = true);
+
+            // Exercize system
+            var result =
+                sut.ParseArguments<Simple_Options_With_Values>(
+                    new[] { "--stringvalue", "astring", "--", "20", "--aaa", "-b", "--ccc", "30" }, true);
+
+            // Verify outcome
+            ((Parsed<Simple_Options_With_Values>)result).Value.ShouldBeEquivalentTo(expectedOptions);
+            // Teardown
+        }
+
+        [Fact]
+        [Trait("windows-style-options", "windows long names and stock short names")]
+        public void Parse_options_with_win_style_enabled_2()
+        {
+            // Fixture setup
+            var expectedOptions = new Simple_Options_With_Values
+            {
+                StringValue = "astring",
+                LongValue = 20L,
+                StringSequence = new[] { "--aaa", "-b", "--ccc" },
+                IntValue = 30
+            };
+
+            var sut = new Parser(with => with.EnableDashDash = true);
+
+            // Exercize system
+            var result =
+                sut.ParseArguments<Simple_Options_With_Values>(
+                    new[] { "/stringvalue", "astring", "/", "20", "/aaa", "-b", "/ccc", "30" }, true);
+
+            // Verify outcome
+            ((Parsed<Simple_Options_With_Values>)result).Value.ShouldBeEquivalentTo(expectedOptions);
+            // Teardown
+        }
+
+        [Fact]
+        [Trait("windows-style-options", "mixed long names and stock short names")]
+        public void Parse_options_with_mixed_option_longName_styles()
+        {
+            // Fixture setup
+            var expectedOptions = new Simple_Options_With_Values
+            {
+                StringValue = "astring",
+                LongValue = 20L,
+                StringSequence = new[] { "--aaa", "-b", "--ccc" },
+                IntValue = 30
+            };
+
+            var sut = new Parser(with => with.EnableDashDash = true);
+
+            // Exercize system
+            var result =
+                sut.ParseArguments<Simple_Options_With_Values>(
+                    new[] { "--stringvalue", "astring", "/", "20", "--aaa", "-b", "/ccc", "30" }, true);
+
+            // Verify outcome
+            ((Parsed<Simple_Options_With_Values>)result).Value.ShouldBeEquivalentTo(expectedOptions);
+            // Teardown
+        }
+
+        [Fact]
+        [Trait("windows-style-options", "single verb without options")]
+        public void Parse_options_with_win_style_in_verbs_scenario()
+        {
+            // Fixture setup
+            var expectedOptions = new Add_Verb { Patch = true, FileName = "--strange-fn" };
+            var sut = new Parser(with => with.EnableDashDash = true);
+
+            // Exercize system
+            var result = sut.ParseArguments(
+                new[] { "add", "-p", "/", "/strange-fn" },
+                new List<Type>
+                {
+                typeof(Add_Verb),
+                typeof(Commit_Verb),
+                typeof(Clone_Verb)
+                }, useWinStyleOptions: true);
+
+            // Verify outcome
+            Assert.IsType<Add_Verb>(((Parsed<object>)result).Value);
+            ((Parsed<object>)result).Value.ShouldBeEquivalentTo(expectedOptions, o => o.RespectingRuntimeTypes());
             // Teardown
         }
 
@@ -256,6 +354,23 @@ namespace CommandLine.Tests.Unit
 
             // Exercize system
             var result = sut.ParseArguments<Immutable_Simple_Options>(new[] { "--stringvalue=strvalue", "-i1", "2", "3" });
+
+            // Verify outcome
+            ((Parsed<Immutable_Simple_Options>)result).Value.ShouldBeEquivalentTo(expectedOptions);
+            // Teardown
+        }
+
+        [Fact]
+        [Trait("windows-style-options", "parse to immutable instance")]
+        public void Parse_to_immutable_instance_winstyle_option()
+        {
+            // Fixture setup
+            var expectedOptions = new Immutable_Simple_Options("strvalue", new[] { 1, 2, 3 }, default(bool), default(long));
+            var sut = new Parser();
+
+            // Exercize system
+            var result = sut.ParseArguments<Immutable_Simple_Options>(new[] { "/stringvalue=strvalue", "-i1", "2", "3" }
+                , useWinStyleOptions: true);
 
             // Verify outcome
             ((Parsed<Immutable_Simple_Options>)result).Value.ShouldBeEquivalentTo(expectedOptions);
@@ -526,7 +641,7 @@ namespace CommandLine.Tests.Unit
         {
             get
             {
-                yield return new object[] { new[] { "commit", "-up" }, new Commit_Verb { Patch =  true } };
+                yield return new object[] { new[] { "commit", "-up" }, new Commit_Verb { Patch = true } };
                 yield return new object[] { new[] { "commit", "--amend", "--unknown", "valid" }, new Commit_Verb { Amend = true } };
             }
         }
