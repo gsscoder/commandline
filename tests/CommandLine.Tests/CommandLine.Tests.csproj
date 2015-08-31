@@ -116,6 +116,8 @@
     <Compile Include="Unit\ParserTests.cs" />
     <Compile Include="Unit\Text\HelpTextTests.cs" />
     <Compile Include="Unit\UnParserExtensionsTests.cs" />
+    <Compile Include="Unit\StringToCommandLine\CSharpStyleCommandLineParserTests.cs" />
+    <Compile Include="Unit\StringToCommandLine\DefaultWindowsCommandLineParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
