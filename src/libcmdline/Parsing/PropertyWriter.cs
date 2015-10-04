@@ -55,6 +55,10 @@ namespace CommandLine.Parsing
                 {
                     propertyValue = Enum.Parse(Property.PropertyType, value, true);
                 }
+                else if (Property.PropertyType.FullName == "System.Guid")
+                {
+                    propertyValue = Guid.Parse(value);
+                }
                 else
                 {
                     propertyValue = Convert.ChangeType(value, Property.PropertyType, _parsingCulture);
