@@ -96,20 +96,15 @@ namespace CommandLine.Core
 
         private static object ToEnum(this string value, Type conversionType)
         {
-            object parsedValue;
             try
             {
-                parsedValue = Enum.Parse(conversionType, value);
+                var conv = System.ComponentModel.TypeDescriptor.GetConverter(conversionType);
+                return (conv.ConvertFrom(value));
             }
-            catch (ArgumentException)
+            catch (NotSupportedException e)
             {
                 throw new FormatException();
             }
-            if (Enum.IsDefined(conversionType, parsedValue))
-            {
-                return parsedValue;
-            }
-            throw new FormatException();
         }
     }
 }
