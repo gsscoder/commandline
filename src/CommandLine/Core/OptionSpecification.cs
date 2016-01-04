@@ -36,7 +36,7 @@ namespace CommandLine.Core
                 attribute.Max == -1 ? Maybe.Nothing<int>() : Maybe.Just(attribute.Max),
                 attribute.Separator,
                 attribute.Default.ToMaybe(),
-                attribute.HelpText,
+                attribute.HelpTextString,
                 attribute.MetaValue,
                 enumValues,
                 conversionType,

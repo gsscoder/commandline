@@ -29,7 +29,7 @@ namespace CommandLine.Core
                 attribute.Min == -1 ? Maybe.Nothing<int>() : Maybe.Just(attribute.Min),
                 attribute.Max == -1 ? Maybe.Nothing<int>() : Maybe.Just(attribute.Max),
                 attribute.Default.ToMaybe(),
-                attribute.HelpText,
+                attribute.HelpTextString,
                 attribute.MetaValue,
                 enumValues,
                 conversionType,

@@ -34,7 +34,7 @@ namespace CommandLine.Core
         {
             return new Verb(
                 attribute.Name,
-                attribute.HelpText
+                attribute.HelpTextString
                 );
         }
 
