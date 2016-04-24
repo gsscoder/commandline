@@ -163,12 +163,12 @@ namespace CommandLine
                 var resourceNameSet = !string.IsNullOrEmpty(resourceName);
 
                 // Both HelpText and ResourceName are set -> illegal
-                if (!helpTextSet && !resourceNameSet)
+                if (helpTextSet && resourceNameSet)
                 {
                     throw new InvalidOperationException("Both HelpText and ResourceName cannot set at the same time.");
                 }
 
-                // Both HelpText and ResourceName ar e not set -> illegal
+                // Both HelpText and ResourceName are not set -> illegal
                 if (!helpTextSet && !resourceNameSet)
                 {
                     throw new InvalidOperationException("Either HelpText or ResourceName must be set.");
