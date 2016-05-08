@@ -118,11 +118,6 @@ namespace CommandLine
             get { return resourceType; }
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-
                 resourceType = value;
             }
         }
@@ -154,25 +149,12 @@ namespace CommandLine
         /// <exception cref="InvalidOperationException">If both <see cref="HelpText"/> and <see cref="ResourceName"/> are set at the same time.</exception>
         /// <exception cref="InvalidOperationException">If both <see cref="HelpText"/> and <see cref="ResourceName"/> are not set. </exception>
         /// <exception cref="InvalidOperationException">If <see cref="ResourceType"/> is set and <see cref="ResourceName"/> is not set. </exception>
-        public string HelpTextString
+        public string MergedHelpText
         {
             get
             {
-                var helpTextSet = !string.IsNullOrEmpty(helpText);
                 var resourceTypeSet = resourceType != null;
                 var resourceNameSet = !string.IsNullOrEmpty(resourceName);
-
-                // Both HelpText and ResourceName are set -> illegal
-                if (helpTextSet && resourceNameSet)
-                {
-                    throw new InvalidOperationException("Both HelpText and ResourceName cannot set at the same time.");
-                }
-
-                // Both HelpText and ResourceName are not set -> illegal
-                if (!helpTextSet && !resourceNameSet)
-                {
-                    throw new InvalidOperationException("Either HelpText or ResourceName must be set.");
-                }
 
                 // If ResourceType is set, then ResourceName must be set also
                 if (resourceTypeSet && !resourceNameSet)
@@ -180,7 +162,7 @@ namespace CommandLine
                     throw new InvalidOperationException("If ResourceType is set, then ResourceName must be set also.");
                 }
 
-                if (helpTextSet)
+                if (!resourceTypeSet)
                 {
                     // return helpText
                     return helpText;
