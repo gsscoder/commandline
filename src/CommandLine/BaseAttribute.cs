@@ -143,11 +143,10 @@ namespace CommandLine
         /// Gets the help text string based on <see cref="HelpText"/> or <see cref="ResourceName"/> (in <see cref="ResourceType"/>), whatever is set.
         /// </summary>
         /// <remarks>
-        /// It is illegal to set both <see cref="HelpText"/> and <see cref="ResourceName"/> at the same time. Also it is illegal to set none of them.
+        /// It is illegal to set both <see cref="HelpText"/> and <see cref="ResourceName"/> at the same time.
         /// If <see cref="ResourceType"/> is set, then <see cref="ResourceName"/> must be set also.
         /// </remarks>
         /// <exception cref="InvalidOperationException">If both <see cref="HelpText"/> and <see cref="ResourceName"/> are set at the same time.</exception>
-        /// <exception cref="InvalidOperationException">If both <see cref="HelpText"/> and <see cref="ResourceName"/> are not set. </exception>
         /// <exception cref="InvalidOperationException">If <see cref="ResourceType"/> is set and <see cref="ResourceName"/> is not set. </exception>
         public string MergedHelpText
         {
