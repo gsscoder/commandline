@@ -116,6 +116,11 @@
     <Compile Include="Unit\Core\ReflectionExtensions.cs" />
     <Compile Include="Unit\ParserResultExtensionsTests.cs" />
     <Compile Include="Unit\ParserTests.cs" />
+    <Compile Include="HelpTexts.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HelpTexts.resx</DependentUpon>
+    </Compile>
     <Compile Include="Unit\Text\HelpTextTests.cs" />
     <Compile Include="Unit\UnParserExtensionsTests.cs" />
   </ItemGroup>
@@ -132,6 +137,13 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HelpTexts.de-DE.resx" />
+    <EmbeddedResource Include="HelpTexts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>HelpTexts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

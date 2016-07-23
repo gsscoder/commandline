@@ -43,7 +43,7 @@ namespace CommandLine.Tests.Fakes
 
     class Options_With_Usage_Attribute
     {
-        [Option('i',"input", HelpText = "Set input file.")]
+        [Option('i', "input", HelpText = "Set input file.")]
         public string InputFile { get; set; }
 
         [Option('i', "output", HelpText = "Set output file.")]
@@ -70,7 +70,7 @@ namespace CommandLine.Tests.Fakes
             get
             {
                 yield return new Example("Normal scenario", new Options_With_Usage_Attribute { InputFile = "file.bin", OutputFile = "out.bin" });
-                yield return new Example("Logging warnings", UnParserSettings.WithGroupSwitchesOnly() , new Options_With_Usage_Attribute { InputFile = "file.bin", LogWarning = true });
+                yield return new Example("Logging warnings", UnParserSettings.WithGroupSwitchesOnly(), new Options_With_Usage_Attribute { InputFile = "file.bin", LogWarning = true });
                 yield return new Example("Logging errors", new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly() }, new Options_With_Usage_Attribute { InputFile = "file.bin", LogError = true });
                 yield return new Example("List", new Options_With_Usage_Attribute { Sequence = new[] { 1, 2 } });
                 yield return new Example("Value", new Options_With_Usage_Attribute { Value = "value" });
@@ -147,5 +147,24 @@ namespace CommandLine.Tests.Fakes
                 yield return new Example("Cloning without hard links", new Clone_Verb_With_Usage_Attribute { NoHardLinks = true, Urls = new[] { "https://github.com/gsscoder/csharpx" } });
             }
         }
+    }
+
+    public class Simple_Options_With_HelpText_From_Ressource
+    {
+        [Option('v', ResourceName = "HelpText123", ResourceType = typeof(HelpTexts))]
+        public int Value { get; set; }
+
+        [Option('t', ResourceName = "HelpTextABC", ResourceType = typeof(HelpTexts))]
+        public string Text { get; set; }
+
+        [Option('m', ResourceName = "HelpTextMessage", ResourceType = typeof(HelpTexts))]
+        public string Message { get; set; }
+    }
+
+    public class Simple_Options_With_HelpText_From_Ressource_And_HelpText_Set
+    {
+        [Option('v', HelpText = "HelpText", ResourceName = "HelpText123", ResourceType = typeof(HelpTexts))]
+        public int Value { get; set; }
+
     }
 }

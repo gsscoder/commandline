@@ -7,6 +7,7 @@ using System.Linq;
 using CommandLine.Core;
 using CommandLine.Tests.Fakes;
 using CommandLine.Text;
+using CSharpx;
 using FluentAssertions;
 using Xunit;
 
@@ -220,7 +221,7 @@ namespace CommandLine.Tests.Unit.Text
 
             // Teardown
         }
-    
+
         [Fact]
         public void Invoking_RenderParsingErrorsText_returns_appropriate_formatted_text()
         {
@@ -422,7 +423,7 @@ namespace CommandLine.Tests.Unit.Text
             ParserResult<Options_With_Usage_Attribute> result =
                 new NotParsed<Options_With_Usage_Attribute>(
                     TypeInfo.Create(typeof(Options_With_Usage_Attribute)), Enumerable.Empty<Error>());
-            
+
             // Exercize system
             var text = HelpText.RenderUsageText(result);
 
@@ -513,6 +514,91 @@ namespace CommandLine.Tests.Unit.Text
             lines[6].Should().Be("-q, --dblseq    (Default: 1.1 2.2 3.3)");
 
             // Teardown
+        }
+
+        [Fact]
+        public void Use_help_text_from_ressources()
+        {
+            // Fixture setup
+            // Exercize system 
+            var sut = new HelpText { AddDashesToOption = true }
+                .AddPreOptionsLine("pre-options")
+                .AddOptions(new NotParsed<Simple_Options_With_HelpText_From_Ressource>(TypeInfo.Create(typeof(Simple_Options_With_HelpText_From_Ressource)), Enumerable.Empty<Error>()))
+                .AddPostOptionsLine("post-options");
+
+            // Verify outcome
+
+            var lines = sut.ToString().ToNotEmptyLines().TrimStringArray();
+            lines[0].ShouldBeEquivalentTo("pre-options");
+            lines[1].ShouldBeEquivalentTo("-v           123");
+            lines[2].ShouldBeEquivalentTo("-t           ABC");
+            if ((System.Threading.Thread.CurrentThread.CurrentCulture.Name == "de-DE") | (System.Threading.Thread.CurrentThread.CurrentUICulture.Name == "de-DE"))
+            {
+                lines[3].ShouldBeEquivalentTo("-m           Hallo CommandLine!");
+            }
+            else
+            {
+                lines[3].ShouldBeEquivalentTo("-m           Hello CommandLine!");
+            }
+
+            lines[4].ShouldBeEquivalentTo("--help       Display this help screen.");
+            lines[5].ShouldBeEquivalentTo("--version    Display version information.");
+            lines[6].ShouldBeEquivalentTo("post-options");
+            // Teardown 
+        }
+
+        [Fact]
+        public void Use_help_text_from_ressources_localized_to_de_DE()
+        {
+            // Fixture setup
+            System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");   // set de_DE
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("de-DE");
+
+            // Exercize system 
+            var sut = new HelpText { AddDashesToOption = true }
+                .AddPreOptionsLine("pre-options")
+                .AddOptions(new NotParsed<Simple_Options_With_HelpText_From_Ressource>(TypeInfo.Create(typeof(Simple_Options_With_HelpText_From_Ressource)), Enumerable.Empty<Error>()))
+                .AddPostOptionsLine("post-options");
+
+            // Verify outcome
+
+            var lines = sut.ToString().ToNotEmptyLines().TrimStringArray();
+            lines[0].ShouldBeEquivalentTo("pre-options");
+            lines[1].ShouldBeEquivalentTo("-v           123");
+            lines[2].ShouldBeEquivalentTo("-t           ABC");
+            lines[3].ShouldBeEquivalentTo("-m           Hallo CommandLine!");
+
+            lines[4].ShouldBeEquivalentTo("--help       Display this help screen.");
+            lines[5].ShouldBeEquivalentTo("--version    Display version information.");
+            lines[6].ShouldBeEquivalentTo("post-options");
+            // Teardown 
+        }
+
+        [Fact]
+        public void Use_help_text_from_ressources_fallback_to_neutral_when_ressource_not_found()
+        {
+            // Fixture setup
+            System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("nl-NL");   // set nl_NL, which cause a fallback to neutral, because nl_NL resources are not present
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("nl-NL");
+
+            // Exercize system 
+            var sut = new HelpText { AddDashesToOption = true }
+                .AddPreOptionsLine("pre-options")
+                .AddOptions(new NotParsed<Simple_Options_With_HelpText_From_Ressource>(TypeInfo.Create(typeof(Simple_Options_With_HelpText_From_Ressource)), Enumerable.Empty<Error>()))
+                .AddPostOptionsLine("post-options");
+
+            // Verify outcome
+
+            var lines = sut.ToString().ToNotEmptyLines().TrimStringArray();
+            lines[0].ShouldBeEquivalentTo("pre-options");
+            lines[1].ShouldBeEquivalentTo("-v           123");
+            lines[2].ShouldBeEquivalentTo("-t           ABC");
+            lines[3].ShouldBeEquivalentTo("-m           Hello CommandLine!");
+
+            lines[4].ShouldBeEquivalentTo("--help       Display this help screen.");
+            lines[5].ShouldBeEquivalentTo("--version    Display version information.");
+            lines[6].ShouldBeEquivalentTo("post-options");
+            // Teardown 
         }
     }
 }
