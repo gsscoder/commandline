@@ -151,11 +151,11 @@
   -->
   <Target Name="BeforeBuild" DependsOnTargets="PaketInstall">
   </Target>
-  <Target Name="BootstrapPaket" Condition="!Exists('$(SolutionDir).paket/paket.bootstrapper.exe)')">
-    <Exec Command="$(SolutionDir).paket/paket.bootstrapper.exe" />
+  <Target Name="BootstrapPaket" Condition="!Exists('..\..\.paket/paket.bootstrapper.exe)')">
+    <Exec Command="mono ..\..\.paket/paket.bootstrapper.exe" />
   </Target>
   <Target Name="PaketInstall" DependsOnTargets="BootstrapPaket" Condition="!Exists('$(SolutionDir)paket-files')">
-    <Exec Command="$(SolutionDir).paket/paket install" />
+    <Exec Command="mono ..\..\.paket/paket.exe install" />
   </Target>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5')">
@@ -167,7 +167,16 @@
         </Reference>
       </ItemGroup>
     </When>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile44')">
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
+      <ItemGroup>
+        <Reference Include="FSharp.Core">
+          <HintPath>..\..\packages\FSharp.Core\lib\net40\FSharp.Core.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="($(TargetFrameworkIdentifier) == '.NETCore') Or ($(TargetFrameworkIdentifier) == 'Xamarin.Mac') Or ($(TargetFrameworkProfile) == 'Profile7') Or ($(TargetFrameworkProfile) == 'Profile44')">
       <ItemGroup>
         <Reference Include="FSharp.Core">
           <HintPath>..\..\packages\FSharp.Core\lib\portable-net45+netcore45\FSharp.Core.dll</HintPath>
@@ -176,10 +185,10 @@
         </Reference>
       </ItemGroup>
     </When>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6')) Or ($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch')">
+    <When Condition="($(TargetFrameworkIdentifier) == 'MonoAndroid') Or ($(TargetFrameworkIdentifier) == 'MonoTouch') Or ($(TargetFrameworkIdentifier) == 'Xamarin.iOS')">
       <ItemGroup>
         <Reference Include="FSharp.Core">
-          <HintPath>..\..\packages\FSharp.Core\lib\net40\FSharp.Core.dll</HintPath>
+          <HintPath>..\..\packages\FSharp.Core\lib\portable-net45+monoandroid10+monotouch10+xamarinios10\FSharp.Core.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
