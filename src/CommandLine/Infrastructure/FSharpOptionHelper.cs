@@ -1,4 +1,7 @@
 ﻿using System;
+#if PLATFORM_DOTNET
+using System.Reflection;
+#endif
 using CommandLine.Core;
 using Microsoft.FSharp.Core;
 
@@ -9,6 +12,9 @@ namespace CommandLine.Infrastructure
         public static Type GetUnderlyingType(Type type)
         {
             return type
+#if NETSTANDARD1_5
+                .GetTypeInfo()
+#endif
                 .GetGenericArguments()[0];
         }
 
