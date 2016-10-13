@@ -142,6 +142,9 @@
     <Compile Include="UnParserExtensions.cs" />
     <Compile Include="ValueAttribute.cs" />
     <Compile Include="VerbAttribute.cs" />
+    <Compile Include="StringToCommandLine\DefaultWindowsCommandLineParser.cs" />
+    <Compile Include="StringToCommandLine\CSharpStyleCommandLineParser.cs" />
+    <Compile Include="StringToCommandLine\StringToCommandLineParserBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
