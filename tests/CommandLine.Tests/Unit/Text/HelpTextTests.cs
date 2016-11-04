@@ -4,8 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using CommandLine.Core;
+using CommandLine.Infrastructure;
 using CommandLine.Tests.Fakes;
+using CommandLine.Tests.Unit.Infrastructure;
 using CommandLine.Text;
 using FluentAssertions;
 using Xunit;
@@ -131,7 +134,7 @@ namespace CommandLine.Tests.Unit.Text
         }
 
         [Fact]
-        public void When_help_text_is_longer_than_width_it_will_wrap_around_as_if_in_a_column()
+        public void When_help_text_is_longer_than_width_it_will_wrap_around_as_if_in_a_column_given_width_of_40()
         {
             // Fixture setup
             // Exercize system 
@@ -150,6 +153,46 @@ namespace CommandLine.Tests.Unit.Text
             lines[4].ShouldBeEquivalentTo("                test out the wrapping ");
             lines[5].ShouldBeEquivalentTo("                capabilities of the ");
             lines[6].ShouldBeEquivalentTo("                Help Text.");
+            // Teardown
+        }
+        
+
+
+        [Fact]
+        public void When_help_text_is_longer_than_width_it_will_wrap_around_as_if_in_a_column_given_width_of_100()
+        {
+            // Fixture setup
+            // Exercize system 
+            var sut = new HelpText(new HeadingInfo("CommandLine.Tests.dll", "1.9.4.131")) { MaximumDisplayWidth = 100} ;
+            sut.AddOptions(
+                new NotParsed<Simple_Options_With_HelpText_Set_To_Long_Description>(
+                    TypeInfo.Create(typeof(Simple_Options_With_HelpText_Set_To_Long_Description)),
+                    Enumerable.Empty<Error>()));
+
+            // Verify outcome
+            var lines = sut.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            lines[2].ShouldBeEquivalentTo("  v, verbose    This is the description of the verbosity to test out the wrapping capabilities of "); //"The first line should have the arguments and the start of the Help Text.");
+            //string formattingMessage = "Beyond the second line should be formatted as though it's in a column.";
+            lines[3].ShouldBeEquivalentTo("                the Help Text.");
+            // Teardown
+        }
+
+        [Fact]
+        public void When_help_text_has_hidden_option_it_should_not_be_added_to_help_text_output()
+        {
+            // Fixture setup
+            // Exercize system 
+            var sut = new HelpText(new HeadingInfo("CommandLine.Tests.dll", "1.9.4.131"));
+            sut.AddOptions(
+                new NotParsed<Simple_Options_With_HelpText_Set_To_Long_Description>(
+                    TypeInfo.Create(typeof(Simple_Options_With_HelpText_Set_To_Long_Description)),
+                    Enumerable.Empty<Error>()));
+
+            // Verify outcome
+            var lines = sut.ToString().Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            lines[2].ShouldBeEquivalentTo("  v, verbose    This is the description of the verbosity to test out the "); //"The first line should have the arguments and the start of the Help Text.");
+            //string formattingMessage = "Beyond the second line should be formatted as though it's in a column.";
+            lines[3].ShouldBeEquivalentTo("                wrapping capabilities of the Help Text.");
             // Teardown
         }
 
@@ -328,6 +371,38 @@ namespace CommandLine.Tests.Unit.Text
         }
 
         [Fact]
+        public void Invoke_AutoBuild_for_Verbs_with_specific_verb_returns_appropriate_formatted_text_given_display_width_100()
+        {
+            // Fixture setup
+            var fakeResult = new NotParsed<object>(
+                TypeInfo.Create(typeof(NullInstance)),
+                new Error[]
+                    {
+                        new HelpVerbRequestedError("commit", typeof(Commit_Verb), true)
+                    });
+
+            // Exercize system
+            var helpText = HelpText.AutoBuild(fakeResult, maxDisplayWidth: 100);            
+
+            // Verify outcome
+            var lines = helpText.ToString().ToNotEmptyLines().TrimStringArray();
+
+#if !PLATFORM_DOTNET
+            lines[0].Should().StartWithEquivalent("CommandLine");
+            lines[1].ShouldBeEquivalentTo("Copyright (c) 2005 - 2015 Giacomo Stelluti Scala");
+#else
+            // Takes the name of the xUnit test program
+            lines[0].Should().StartWithEquivalent("xUnit");
+            lines[1].Should().StartWithEquivalent("Copyright (C) Outercurve Foundation");
+#endif
+            lines[2].ShouldBeEquivalentTo("-p, --patch      Use the interactive patch selection interface to chose which changes to commit.");
+            lines[3].ShouldBeEquivalentTo("--amend          Used to amend the tip of the current branch.");
+            lines[4].ShouldBeEquivalentTo("-m, --message    Use the given message as the commit message.");
+            lines[5].ShouldBeEquivalentTo("--help           Display this help screen.");
+            // Teardown
+        }
+
+        [Fact]
         public void Invoke_AutoBuild_for_Verbs_with_unknown_verb_returns_appropriate_formatted_text()
         {
             // Fixture setup
@@ -428,7 +503,7 @@ namespace CommandLine.Tests.Unit.Text
             var helpText = HelpText.AutoBuild(fakeResult);
 
             // Verify outcome
-            var text = helpText.ToString();
+            var text = helpText.ToString();            
             var lines = text.ToNotEmptyLines().TrimStringArray();
 #if !PLATFORM_DOTNET
             lines[0].Should().StartWithEquivalent("CommandLine");
@@ -492,5 +567,95 @@ namespace CommandLine.Tests.Unit.Text
             // Teardown
         }
 #endif
+
+        [Fact]
+        public void AutoBuild_when_no_assembly_attributes()
+        {
+            try
+            {
+                string expectedCopyright = "Copyright (C) 1 author";
+
+                ReflectionHelper.SetAttributeOverride(new Attribute[0]);
+
+                ParserResult<Simple_Options> fakeResult = new NotParsed<Simple_Options>(
+                    TypeInfo.Create(typeof (Simple_Options)), new Error[0]);
+                bool onErrorCalled = false;
+                HelpText actualResult = HelpText.AutoBuild(fakeResult, ht => 
+                {
+                    onErrorCalled = true;
+                    return ht;
+                }, ex => ex);
+                
+                onErrorCalled.Should().BeTrue();
+                actualResult.Copyright.Should().Be(expectedCopyright);
+            }
+            finally
+            {
+                ReflectionHelper.SetAttributeOverride(null);
+            }
+        }
+
+        [Fact]
+        public void AutoBuild_with_assembly_title_and_version_attributes_only()
+        {
+            try
+            {
+                string expectedTitle = "Title";
+                string expectedVersion = "1.2.3.4";
+
+                ReflectionHelper.SetAttributeOverride(new Attribute[]
+                {
+                    new AssemblyTitleAttribute(expectedTitle),
+                    new AssemblyInformationalVersionAttribute(expectedVersion)
+                });
+
+                ParserResult<Simple_Options> fakeResult = new NotParsed<Simple_Options>(
+                    TypeInfo.Create(typeof (Simple_Options)), new Error[0]);
+                bool onErrorCalled = false;
+                HelpText actualResult = HelpText.AutoBuild(fakeResult, ht =>
+                {
+                    onErrorCalled = true;
+                    return ht;
+                }, ex => ex);
+
+                onErrorCalled.Should().BeTrue();
+                actualResult.Heading.Should().Be(string.Format("{0} {1}", expectedTitle, expectedVersion));
+            }
+            finally
+            {
+                ReflectionHelper.SetAttributeOverride(null);
+            }
+        }
+
+
+        [Fact]
+        public void AutoBuild_with_assembly_company_attribute_only()
+        {
+            try
+            {
+                string expectedCompany = "Company";
+
+                ReflectionHelper.SetAttributeOverride(new Attribute[]
+                {
+                    new AssemblyCompanyAttribute(expectedCompany)
+                });
+
+                ParserResult<Simple_Options> fakeResult = new NotParsed<Simple_Options>(
+                    TypeInfo.Create(typeof (Simple_Options)), new Error[0]);
+                bool onErrorCalled = false;
+                HelpText actualResult = HelpText.AutoBuild(fakeResult, ht =>
+                {
+                    onErrorCalled = true;
+                    return ht;
+                }, ex => ex);
+
+                onErrorCalled.Should().BeFalse(); // Other attributes have fallback logic
+                actualResult.Copyright.Should().Be(string.Format("Copyright (C) {0} {1}", DateTime.Now.Year, expectedCompany));
+            }
+            finally
+            {
+                ReflectionHelper.SetAttributeOverride(null);
+            }
+        }
     }
 }

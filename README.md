@@ -17,6 +17,7 @@ Compatibility:
 ---
   - .NET Framework 4.0+
   - Mono 2.1+ Profile
+  - .Net Core - Note: support for Core is currently limited to an [alternate branch](https://github.com/gsscoder/commandline/tree/dotnet-core) while we wait for release of 1.0. If you have suggestions or changes for support of .Net Core, please submit a pull request to that branch until it's merged into master.
 
 Current Release:
 ---
@@ -90,17 +91,8 @@ class Options {
 Consume them:
 ```csharp
 static int Main(string[] args) {
-  var result = CommandLine.Parser.Default.ParseArguments<Options>(args);
-  var exitCode = result
-    .MapResult(
-      options = > {
-        if (options.Verbose) Console.WriteLine("Filenames: {0}", string.Join(",", options.InputFiles.ToArray()));
-        return 0; },
-      errors => {
-	    LogHelper.Log(errors);
-	    return 1; });
-  return exitCode;
-}
+  var options = new Options();
+  var isValid = CommandLine.Parser.Default.ParseArgumentsStrict(args, options);
 ```
 **F#:**
 ```fsharp
@@ -119,6 +111,32 @@ let main argv =
   | :? Parsed<options> as parsed -> run parsed.Value
   | :? NotParsed<options> as notParsed -> fail notParsed.Errors
 ```
+**VB.NET:**
+```VB.NET
+Class Options
+	<CommandLine.Option('r', "read", Required := true,
+	HelpText:="Input files to be processed.")>
+	Public Property InputFiles As IEnumerable(Of String)
+
+    ' Omitting long name, default --verbose
+    <CommandLine.Option(
+	HelpText:="Prints all messages to standard output.")>
+	Public Property Verbose As Boolean
+
+	<CommandLine.Option(Default:="中文",
+	HelpText:="Content language.")>
+	Public Property Language As String
+
+	<CommandLine.Value(0, MetaName:="offset",
+	HelpText:="File offset.")>
+	Public Property Offset As Long?
+End Class
+```
+Consume them:
+```VB.NET
+TODO
+```
+
 
 For verbs:
 
@@ -174,6 +192,25 @@ let main args =
     | :? CommitOptions as opts -> RunCommitAndReturnExitCode opts
     | :? CloneOptions as opts -> RunCloneAndReturnExitCode opts
   | :? CommandLine.NotParsed<obj> -> 1
+```
+**VB.NET:**
+```VB.NET
+<CommandLine.Verb("add", HelpText:="Add file contents to the index.")>
+Public Class AddOptions
+	'Normal options here
+End Class
+<CommandLine.Verb("commit", HelpText:="Record changes to the repository.")>
+Public Class AddOptions
+	'Normal options here
+End Class
+<CommandLine.Verb("clone", HelpText:="Clone a repository into a new directory.")>
+Public Class AddOptions
+	'Normal options here
+End Class
+
+Public Shared Sub Main()
+	'TODO
+End Sub
 ```
 
 Acknowledgements:

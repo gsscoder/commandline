@@ -13,14 +13,16 @@ namespace CommandLine.Core
     {
         private readonly string name;
         private readonly string helpText;
+        private readonly bool hidden;
 
-        public Verb(string name, string helpText)
+        public Verb(string name, string helpText, bool hidden = false)
         {
             if (name == null) throw new ArgumentNullException("name");
             if (helpText == null) throw new ArgumentNullException("helpText");
 
             this.name = name;
             this.helpText = helpText;
+            this.hidden = hidden;
         }
 
         public string Name
@@ -33,11 +35,17 @@ namespace CommandLine.Core
             get { return helpText; }
         }
 
+        public bool Hidden
+        {
+            get { return hidden; }
+        }
+
         public static Verb FromAttribute(VerbAttribute attribute)
         {
             return new Verb(
                 attribute.Name,
-                attribute.HelpText
+                attribute.HelpText,
+                attribute.Hidden
                 );
         }
 
