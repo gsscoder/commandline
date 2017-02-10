@@ -81,11 +81,11 @@ class Options {
     HelpText = "Prints all messages to standard output.")]
   public bool Verbose { get; set; }
 
-  [Option(Default = "中文",
+  [Option(DefaultValue = "中文",
     HelpText = "Content language.")]
   public string Language { get; set; }
 
-  [Value(0, MetaName = "offset",
+  [Option(DefaultValue = 0, MetaValue = "offset",
     HelpText = "File offset.")]
   public long? Offset { get; set; }
 }
