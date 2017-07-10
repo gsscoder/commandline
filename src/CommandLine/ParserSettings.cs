@@ -32,6 +32,7 @@ namespace CommandLine
             caseSensitive = true;
             caseInsensitiveEnumValues = false;
             parsingCulture = CultureInfo.InvariantCulture;
+            DefaultObjectFactory = new DefaultObjectFactory();
             try
             {
                 maximumDisplayWidth = Console.WindowWidth;
@@ -49,6 +50,12 @@ namespace CommandLine
         {
             Dispose(false);
         }
+
+
+        /// <summary>
+        /// Sets the default object factory to use for instance creation 
+        /// </summary>
+        public ObjectFactory DefaultObjectFactory { get; set; } 
 
         /// <summary>
         /// Gets or sets a value indicating whether perform case sensitive comparisons.
