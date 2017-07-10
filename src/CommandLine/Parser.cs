@@ -88,7 +88,7 @@ namespace CommandLine
             if (args == null) throw new ArgumentNullException("args");
 
             var factory = typeof(T).IsMutable()
-                ? Maybe.Just<Func<T>>(Activator.CreateInstance<T>)
+                ? Maybe.Just<Func<T>>(CreateInstance<T>)
                 : Maybe.Nothing<Func<T>>();
 
             return MakeParserResult(
@@ -104,6 +104,17 @@ namespace CommandLine
         }
 
         /// <summary>
+        /// Create Instance to use for binding 
+        /// Override to add container resolution 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        protected virtual T CreateInstance<T>()
+        {
+            return settings.DefaultObjectFactory.CreateInstance<T>();
+        }
+
+        /// <summary>
         /// Parses a string array of command line arguments constructing values in an instance of type <typeparamref name="T"/>.
         /// Grammar rules are defined decorating public properties with appropriate attributes.
         /// </summary>
@@ -114,7 +125,6 @@ namespace CommandLine
         /// and a sequence of <see cref="CommandLine.Error"/>.</returns>
         /// <exception cref="System.ArgumentNullException">Thrown if one or more arguments are null.</exception>
         public ParserResult<T> ParseArguments<T>(Func<T> factory, IEnumerable<string> args)
-            where T : new()
         {
             if (factory == null) throw new ArgumentNullException("factory");
             if (!typeof(T).IsMutable()) throw new ArgumentException("factory");
@@ -222,4 +232,5 @@ namespace CommandLine
             }
         }
     }
+
 }
