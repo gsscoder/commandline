@@ -32,7 +32,7 @@ namespace CommandLine
             caseSensitive = true;
             caseInsensitiveEnumValues = false;
             parsingCulture = CultureInfo.InvariantCulture;
-            DefaultObjectFactory = new DefaultObjectFactory();
+
             try
             {
                 maximumDisplayWidth = Console.WindowWidth;
@@ -44,6 +44,11 @@ namespace CommandLine
         }
 
         /// <summary>
+        /// Object Factory to use for new instances
+        /// </summary>
+        public static IObjectFactory ObjectFactory { get; set; } = new DefaultObjectFactory();
+
+        /// <summary>
         /// Finalizes an instance of the <see cref="CommandLine.ParserSettings"/> class.
         /// </summary>
         ~ParserSettings()
@@ -51,12 +56,7 @@ namespace CommandLine
             Dispose(false);
         }
 
-
-        /// <summary>
-        /// Sets the default object factory to use for instance creation 
-        /// </summary>
-        public IObjectFactory DefaultObjectFactory { get; set; } 
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether perform case sensitive comparisons.
         /// Note that case insensitivity only applies to <i>parameters</i>, not the values

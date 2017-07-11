@@ -75,6 +75,7 @@
     <Compile Include="Core\Sequence.cs" />
     <Compile Include="Core\Switch.cs" />
     <Compile Include="ErrorExtensions.cs" />
+    <Compile Include="Infrastructure\DefaultObjectFactory.cs" />
     <Compile Include="Infrastructure\EnumerableExtensions`1.cs" />
     <Compile Include="Core\InstanceChooser.cs" />
     <Compile Include="Core\Tokenizer.cs">
@@ -83,7 +84,7 @@
     <Compile Include="Core\Verb.cs" />
     <Compile Include="Infrastructure\ExceptionExtensions.cs" />
     <Compile Include="Infrastructure\FSharpOptionHelper.cs" />
-    <Compile Include="Infrastructure\ObjectFactory.cs" />
+    <Compile Include="Infrastructure\IObjectFactory.cs" />
     <Compile Include="Infrastructure\PopsicleSetter.cs" />
     <Compile Include="Infrastructure\ReferenceEqualityComparer.cs" />
     <Compile Include="Infrastructure\ReflectionHelper.cs" />
