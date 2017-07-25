@@ -168,7 +168,7 @@ namespace CommandLine.Core
         {
             if (type.IsMutable())
             {
-                return Activator.CreateInstance(type);
+                return ParserSettings.ObjectFactory.Resolve(type);
             }
 
             var ctorTypes = type.GetSpecifications(pi => pi.PropertyType).ToArray();
