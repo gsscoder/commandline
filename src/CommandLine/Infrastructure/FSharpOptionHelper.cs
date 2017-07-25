@@ -14,9 +14,14 @@ namespace CommandLine.Infrastructure
         {
             return type
 #if NETSTANDARD1_5
-                .GetTypeInfo()
-#endif
+                .GetTypeInfo().GetGenericArguments()[0];
+#elif NETSTANDARD2_0
+                .GenericTypeArguments[0];
+#else
                 .GetGenericArguments()[0];
+#endif
+
+
         }
 
         public static object Some(Type type, object value)

@@ -45,3 +45,5 @@ artifacts/*
 *.nuget.props
 *.DotSettings.user
 
+*/build/*
+build
