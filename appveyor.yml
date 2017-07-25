@@ -5,5 +5,7 @@ build_script:
 test: off
 version: 2.1.3.{build}-beta
 artifacts:
-  - path: bin
-    name: bin
+  - path: build
+    name: build
+  - path: ./src/**/*.nupkg
+    name: nuget
