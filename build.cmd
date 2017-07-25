@@ -16,4 +16,6 @@ if errorlevel 1 (
 
 dotnet restore
 dotnet build --configuration Release --output .\build\netstandard1.5 --framework netstandard1.5 src\commandline
+
+dotnet restore  .\src\CommandLine\CommandLine.netstandard.csproj
 dotnet build --configuration Release --output .\build\netstandard2.0 --framework netstandard2.0 src\commandline\commandline.netstandard.csproj
