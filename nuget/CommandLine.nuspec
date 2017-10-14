@@ -7,7 +7,7 @@
     <authors>Giacomo Stelluti Scala</authors>
     <description>Terse syntax C# command line parser for .NET with F# support. The Command Line Parser Library offers to CLR applications a clean and concise API for manipulating command line arguments and related tasks.</description>
     <releaseNotes />
-    <copyright>Copyright (c) 2005 - 2016 Giacomo Stelluti Scala</copyright>
+    <copyright>Copyright (c) 2005 - 2017 Giacomo Stelluti Scala</copyright>
     <licenseUrl>https://github.com/gsscoder/commandline/blob/master/License.md</licenseUrl>
     <projectUrl>https://github.com/gsscoder/commandline</projectUrl>
     <owners>Giacomo Stelluti Scala</owners>
@@ -35,10 +35,13 @@
   <files>
     <file src="..\build\CommandLine.dll" target="lib\net40\CommandLine.dll" />
     <file src="..\build\CommandLine.XML" target="lib\net40\CommandLine.XML" />
+    <file src="..\build\CommandLine.pdb" target="lib\net40\CommandLine.pdb" />
     <file src="..\build\CommandLine.dll" target="lib\net45\CommandLine.dll" />
     <file src="..\build\CommandLine.XML" target="lib\net45\CommandLine.XML" />
+    <file src="..\build\CommandLine.pdb" target="lib\net45\CommandLine.pdb" />
     <file src="..\build\netstandard1.5\CommandLine.dll" target="lib\netstandard1.5\CommandLine.dll" />
     <file src="..\build\CommandLine.XML" target="lib\netstandard1.5\CommandLine.xml" />
+    <file src="..\build\CommandLine.pdb" target="lib\netstandard1.5\CommandLine.pdb" />
     <file src="..\readme.md" target="readme.md" />
   </files>
 </package>
