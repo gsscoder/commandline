@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>CommandLine-NetStandard</PackageId>
+    <Authors>gsscoder, clmcgrath</Authors>
+    <Company />
+    <Product>CommandLine.netstandard20</Product>
+    <Description />
+    <Version>1.0.0.0</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;CSX_EITHER_INTERNAL; CSX_REM_EITHER_BEYOND_2; CSX_ENUM_INTERNAL; ERRH_INTERNAL; ERRH_DISABLE_INLINE_METHODS; CSX_MAYBE_INTERNAL; CSX_REM_EITHER_FUNC;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;CSX_EITHER_INTERNAL; CSX_REM_EITHER_BEYOND_2; CSX_ENUM_INTERNAL; ERRH_INTERNAL; ERRH_DISABLE_INLINE_METHODS; CSX_MAYBE_INTERNAL; CSX_REM_EITHER_FUNC;RELEASE;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <Target Name="BeforeBuild" DependsOnTargets="PaketInstall">
+  </Target>
+  <Target Name="BootstrapPaket" Condition="!Exists('$(SolutionDir).paket/paket.bootstrapper.exe)')">
+    <Exec Command="$(SolutionDir).paket/paket.bootstrapper.exe" />
+  </Target>
+  <Target Name="PaketInstall" DependsOnTargets="BootstrapPaket" Condition="!Exists('$(SolutionDir)paket-files')">
+    <Exec Command="$(SolutionDir).paket/paket install" />
+  </Target>
+  <ItemGroup>
+    <Compile Remove="build\**" />
+    <EmbeddedResource Remove="build\**" />
+    <None Remove="build\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+    <Compile Remove="Properties\" />
+    <Compile Include="..\..\paket-files\gsscoder\railwaysharp\src\RailwaySharp\ErrorHandling.cs">
+      <Paket>True</Paket>
+      <Link>Infrastructure/ErrorHandling.cs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\gsscoder\CSharpx\src\CSharpx\EnumerableExtensions.cs">
+      <Paket>True</Paket>
+      <Link>Infrastructure/EnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\paket-files\gsscoder\CSharpx\src\CSharpx\Maybe.cs">
+      <Paket>True</Paket>
+      <Link>Infrastructure/Maybe.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="4.2.1" />
+    <PackageReference Include="Paket" Version="5.81.1" />
+    <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

@@ -694,7 +694,7 @@ namespace CommandLine.Text
                     var prop = tuple.Item1;
                     var attr = tuple.Item2;
 
-#if NETSTANDARD1_5
+#if NETSTANDARD1_5 || NETSTANDARD2_0
                     var examples = (IEnumerable<Example>)prop.GetValue(null);
 #else
                     var examples = (IEnumerable<Example>)prop

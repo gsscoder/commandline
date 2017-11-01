@@ -168,7 +168,7 @@ namespace CommandLine.Core
         {
             if (type.IsMutable())
             {
-                return Activator.CreateInstance(type);
+                return ParserSettings.ObjectFactory.Resolve(type);
             }
 
             var ctorTypes = type.GetSpecifications(pi => pi.PropertyType).ToArray();
@@ -183,10 +183,11 @@ namespace CommandLine.Core
 
         public static object StaticMethod(this Type type, string name, params object[] args)
         {
-#if NETSTANDARD1_5
+#if NETSTANDARD1_5 || NETSTANDARD2_0
             MethodInfo method = type.GetTypeInfo().GetDeclaredMethod(name);
             return method.Invoke(null, args);
 #else
+
             return type.GetTypeInfo().InvokeMember(
                 name,
                 BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
@@ -198,7 +199,7 @@ namespace CommandLine.Core
 
         public static object StaticProperty(this Type type, string name)
         {
-#if NETSTANDARD1_5
+#if NETSTANDARD1_5 || NETSTANDARD2_0
             PropertyInfo property = type.GetTypeInfo().GetDeclaredProperty(name);
             return property.GetValue(null);
 #else
@@ -213,7 +214,7 @@ namespace CommandLine.Core
 
         public static object InstanceProperty(this Type type, string name, object target)
         {
-#if NETSTANDARD1_5
+#if NETSTANDARD1_5 || NETSTANDARD2_0
             PropertyInfo property = type.GetTypeInfo().GetDeclaredProperty(name);
             return property.GetValue(target);
 #else

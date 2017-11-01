@@ -16,6 +16,7 @@ namespace CommandLine.Core
 {
     static class InstanceBuilder
     {
+        
         public static ParserResult<T> Build<T>(
             Maybe<Func<T>> factory,
             Func<IEnumerable<string>, IEnumerable<OptionSpecification>, Result<IEnumerable<Token>, Error>> tokenizer,
@@ -82,7 +83,7 @@ namespace CommandLine.Core
 
                 Func<T> buildMutable = () =>
                 {
-                    var mutable = factory.MapValueOrDefault(f => f(), Activator.CreateInstance<T>());
+                    var mutable = factory.MapValueOrDefault(f => f(), ParserSettings.ObjectFactory.Resolve<T>());
                     mutable =
                         mutable.SetProperties(specPropsWithValue, sp => sp.Value.IsJust(), sp => sp.Value.FromJustOrFail())
                             .SetProperties(
