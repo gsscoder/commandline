@@ -8,6 +8,7 @@ using CommandLine.Core;
 using CommandLine.Text;
 using CSharpx;
 using RailwaySharp.ErrorHandling;
+using CommandLine.Infrastructure;
 
 namespace CommandLine
 {
@@ -159,6 +160,28 @@ namespace CommandLine
                     settings.ParsingCulture,
                     HandleUnknownArguments(settings.IgnoreUnknownArguments)),
                 settings);
+        }
+
+        public ParserResult<object> ParseArguments(IEnumerable<string> args, IEnumerable<Type> types, bool useWinStyleOptions = true)
+        {
+            return ParseArguments(ParserExtensions.ConvertWindowsStyleOptions(args), types.ToArray());
+        }
+
+        /// 
+        /// <summary>
+        /// Parses a string array of command line arguments constructing values in an instance of type <typeparamref name="T"/>.
+        /// Grammar rules are defined decorating public properties with appropriate attributes.
+        /// </summary>
+        /// <typeparam name="T">Type of the target instance built with parsed value.</typeparam>
+        /// <param name="args">A <see cref="System.String"/> array of command line arguments, normally supplied by application entry point.</param>
+        /// <param name="useWinStyleOptions">Allows using '/' instead of '--' for option long names</param>
+        /// <returns>A <see cref="CommandLine.ParserResult{T}"/> containing an instance of type <typeparamref name="T"/> with parsed values
+        /// and a sequence of <see cref="CommandLine.Error"/>.</returns>
+        /// <exception cref="System.ArgumentNullException">Thrown if one or more arguments are null.</exception>
+        public ParserResult<T> ParseArguments<T>(IEnumerable<string> args, bool useWinStyleOptions = true)
+        {
+            if (args == null) throw new ArgumentNullException("args");
+            return ParseArguments<T>(ParserExtensions.ConvertWindowsStyleOptions(args));
         }
 
         /// <summary>
