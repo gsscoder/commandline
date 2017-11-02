@@ -93,8 +93,7 @@ class Options {
 Consume them:
 ```csharp
 static int Main(string[] args) {
-  var options = new Options();
-  var isValid = CommandLine.Parser.Default.ParseArgumentsStrict(args, options);
+  var result = CommandLine.Parser.Default.ParseArguments<Options>(args);
 ```
 **F#:**
 ```fsharp
@@ -144,6 +143,8 @@ For verbs:
 
 **C#:**
 ```csharp
+using CommandLine;
+
 [Verb("add", HelpText = "Add file contents to the index.")]
 class AddOptions {
   //normal options here
@@ -158,7 +159,7 @@ class CloneOptions {
 }
 
 int Main(string[] args) {
-  return CommandLine.Parser.Default.ParseArguments<AddOptions, CommitOptions, CloneOptions>(args)
+  return Parser.Default.ParseArguments<AddOptions, CommitOptions, CloneOptions>(args)
     .MapResult(
       (AddOptions opts) => RunAddAndReturnExitCode(opts),
       (CommitOptions opts) => RunCommitAndReturnExitCode(opts),
