@@ -1,6 +1,5 @@
 init:
   - git config --global core.autocrlf input
-image: Visual Studio 2017 Preview
 build_script:
   - cmd: build.cmd
 test: off
